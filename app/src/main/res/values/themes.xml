@@ -1,9 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.DragApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.DragApp" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/ios_primary</item>
+        <item name="android:statusBarColor">@color/ios_bg</item>
+        <item name="android:navigationBarColor">@color/ios_bg</item>
+        <item name="android:windowBackground">@color/ios_bg</item>
     </style>
-
     <style name="Theme.DragApp" parent="Base.Theme.DragApp" />
 </resources>

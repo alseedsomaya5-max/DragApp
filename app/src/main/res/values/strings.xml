@@ -1,3 +1,32 @@
 <resources>
-    <string name="app_name">DragApp</string>
+    <string name="app_name">منبه الأدوية</string>
+    <!-- الصفحة الرئيسية -->
+    <string name="page_home_title">الرئيسية</string>
+    <string name="patients">من يتلقون الدواء</string>
+    <string name="patients_subtitle">اختر شخصاً لإدارة منبهات أدويته</string>
+    <string name="add_patient">إضافة شخص جديد</string>
+    <string name="patient_name">الاسم</string>
+    <!-- صفحة تفاصيل الشخص -->
+    <string name="page_patient_title">منبهات الدواء</string>
+    <string name="medications">مواعيد الأدوية</string>
+    <string name="add_medication">إضافة منبه دواء</string>
+    <string name="medication_name">اسم الدواء</string>
+    <string name="dosage">الجرعة</string>
+    <string name="time">الوقت</string>
+    <string name="take_photo">التقاط صورة الدواء</string>
+    <string name="save">حفظ</string>
+    <string name="saving">جاري الحفظ…</string>
+    <string name="back">رجوع</string>
+    <string name="no_patients">لا يوجد أشخاص. اضغط \"إضافة شخص جديد\" للبدء.</string>
+    <string name="no_reminders">لا توجد منبهات. اضغط + لإضافة منبه دواء.</string>
+    <!-- الشريط السفلي -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_reminders">المنبهات</string>
+    <string name="nav_more">المزيد</string>
+    <string name="all_reminders_title">جميع المنبهات</string>
+    <string name="more_title">المزيد</string>
+    <string name="settings">الإعدادات</string>
+    <string name="about">حول التطبيق</string>
+    <string name="check_appwrite">فحص اتصال Appwrite</string>
+    <string name="connection_status">حالة الاتصال</string>
 </resources>

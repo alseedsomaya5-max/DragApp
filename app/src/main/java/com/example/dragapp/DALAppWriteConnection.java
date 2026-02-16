@@ -41,6 +41,7 @@ public class DALAppWriteConnection {
     
     private Context context;
     private Gson gson;
+    private String lastSaveError;
     
     /**
      * منشئ الكلاس الرئيسي
@@ -71,6 +72,69 @@ public class DALAppWriteConnection {
             
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /**
+     * فحص مفصل للاتصال: السيرفر، المشروع، وقاعدة البيانات.
+     * @return رسالة توضح حالة كل جزء (للعرض للمستخدم)
+     */
+    public String checkConnectionStatus() {
+        StringBuilder status = new StringBuilder();
+        try {
+            // 1) فحص وصول السيرفر
+            URL healthUrl = new URL(BASE_URL + "/health");
+            HttpURLConnection healthConn = (HttpURLConnection) healthUrl.openConnection();
+            healthConn.setRequestMethod("GET");
+            healthConn.setConnectTimeout(5000);
+            healthConn.setReadTimeout(5000);
+            int healthCode = healthConn.getResponseCode();
+            healthConn.disconnect();
+            if (healthCode != 200 && healthCode != 401) {
+                return "السيرفر غير متاح (رمز " + healthCode + "). تحقق من الإنترنت أو عنوان " + BASE_URL;
+            }
+            status.append("• السيرفر: متصل\n");
+
+            // 2) فحص المشروع ومفتاح API وقاعدة البيانات
+            URL dbUrl = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID);
+            HttpURLConnection dbConn = (HttpURLConnection) dbUrl.openConnection();
+            dbConn.setRequestMethod("GET");
+            dbConn.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+            dbConn.setRequestProperty("X-Appwrite-Key", API_KEY);
+            dbConn.setConnectTimeout(5000);
+            dbConn.setReadTimeout(5000);
+            int dbCode = dbConn.getResponseCode();
+            String errorBody = "";
+            if (dbCode >= 400) {
+                try {
+                    java.io.BufferedReader r = new java.io.BufferedReader(new java.io.InputStreamReader(dbConn.getErrorStream()));
+                    String line;
+                    while ((line = r.readLine()) != null) errorBody += line;
+                } catch (Exception ignored) {}
+            }
+            dbConn.disconnect();
+
+            if (dbCode == 401) {
+                return "المشروع أو مفتاح API غير صحيح (401). راجع PROJECT_ID و API_KEY في الكود.";
+            }
+            if (dbCode == 404) {
+                return "قاعدة البيانات غير موجودة (404). تأكد من MAIN_DATABASE_ID: " + MAIN_DATABASE_ID;
+            }
+            if (dbCode == 403) {
+                return "الصلاحيات غير كافية (403). تأكد من أن المفتاح يسمح بالوصول لقواعد البيانات.";
+            }
+            if (dbCode != 200) {
+                return "خطأ من السيرفر: " + dbCode + (errorBody.isEmpty() ? "" : " - " + errorBody);
+            }
+            status.append("• المشروع والمفتاح: صحيحان\n");
+            status.append("• قاعدة البيانات: متاحة\n");
+            return "اتصال Appwrite يعمل بشكل صحيح:\n" + status.toString();
+        } catch (java.net.UnknownHostException e) {
+            return "لا يوجد اتصال بالإنترنت أو السيرفر غير معروف.";
+        } catch (java.net.SocketTimeoutException e) {
+            return "انتهت مهلة الاتصال. تحقق من الشبكة.";
+        } catch (Exception e) {
+            return "خطأ: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
         }
     }
     
@@ -728,7 +792,8 @@ public class DALAppWriteConnection {
             
             ArrayList<T> savedItems = new ArrayList<>();
             int successCount = 0;
-            
+            lastSaveError = null;
+
             // حفظ كل عنصر
             for (T item : dataList) {
                 try {
@@ -765,6 +830,7 @@ public class DALAppWriteConnection {
                         successCount++;
                     }
                 } catch (Exception e) {
+                    lastSaveError = e.getMessage() != null ? e.getMessage() : "خطأ غير متوقع";
                 }
             }
             
@@ -772,7 +838,7 @@ public class DALAppWriteConnection {
                 String message = "تم حفظ " + successCount + " عنصر بنجاح من أصل " + dataList.size();
                 return new OperationResult<>(true, message, savedItems);
             } else {
-                return new OperationResult<>(false, "فشل في حفظ جميع العناصر");
+                return new OperationResult<>(false, lastSaveError != null ? lastSaveError : "فشل في حفظ جميع العناصر");
             }
             
         } catch (Exception e) {
@@ -1228,8 +1294,9 @@ public class DALAppWriteConnection {
                 // تجاهل الحقول غير المطلوبة
                 if (key.equals("metadata") || key.equals("documentId") || 
                     key.equals("createdAt") || key.equals("createdBy") ||
-                    key.equals("class") || key.equals("$") || key.equals("id")) {
-                    continue; // لا نضيف هذه الحقول (id تم تحويله مسبقاً)
+                    key.equals("class") || key.equals("$") || key.equals("id") ||
+                    key.equals("$id") || key.startsWith("$")) {
+                    continue;
                 }
                 
                 // إضافة الحقول المهمة فقط
@@ -1250,16 +1317,36 @@ public class DALAppWriteConnection {
                 return true;
             } else {
                 String errorResponse = readErrorResponse(connection);
-                
+                lastSaveError = parseAppwriteError(errorResponse);
+
                 // إصلاح schema errors: محاولة أخرى بدون schema validation
                 if (errorResponse.contains("Unknown attribute") || errorResponse.contains("document_invalid_structure")) {
                     return saveWithoutSchemaValidation(tableName, collectionId, documentId, cleanData);
                 }
-                
                 return false;
             }
         } catch (Exception e) {
+            lastSaveError = e.getMessage() != null ? e.getMessage() : "خطأ اتصال";
             return false;
+        }
+    }
+
+    /** استخراج رسالة خطأ مفهومة من استجابة Appwrite JSON */
+    private String parseAppwriteError(String json) {
+        if (json == null || json.isEmpty()) return "فشل الحفظ";
+        try {
+            if (json.contains("\"message\"")) {
+                String[] parts = json.split("\"message\"");
+                if (parts.length > 1) {
+                    int start = parts[1].indexOf("\"") + 1;
+                    int end = parts[1].indexOf("\"", start);
+                    if (end > start) return parts[1].substring(start, end);
+                }
+            }
+            if (json.length() > 200) return json.substring(0, 200) + "...";
+            return json;
+        } catch (Exception e) {
+            return json.length() > 100 ? json.substring(0, 100) + "..." : json;
         }
     }
     
@@ -1345,12 +1432,9 @@ public class DALAppWriteConnection {
         try {
             Map<String, Object> map = convertObjectToMap(obj);
             Object id = map.get("id");
-            if (id == null) {
-                id = map.get("userId");
-            }
-            if (id == null) {
-                id = map.get("documentId");
-            }
+            if (id == null) id = map.get("$id");
+            if (id == null) id = map.get("userId");
+            if (id == null) id = map.get("documentId");
             return id != null ? id.toString() : null;
         } catch (Exception e) {
             return null;

@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- iOS-like -->
+    <color name="ios_bg">#F2F2F7</color>
+    <color name="ios_card">#FFFFFF</color>
+    <color name="ios_primary">#007AFF</color>
+    <color name="ios_label">#3C3C43</color>
+    <color name="ios_secondary">#8E8E93</color>
 </resources>
