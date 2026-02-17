@@ -13,7 +13,7 @@
     <string name="medication_name">اسم الدواء</string>
     <string name="dosage">الجرعة</string>
     <string name="time">الوقت</string>
-    <string name="take_photo">التقاط صورة الدواء</string>
+    <string name="take_photo">التقاط صورة</string>
     <string name="save">حفظ</string>
     <string name="saving">جاري الحفظ…</string>
     <string name="back">رجوع</string>
@@ -30,4 +30,27 @@
     <string name="check_appwrite">فحص اتصال Appwrite</string>
     <string name="connection_status">حالة الاتصال</string>
     <string name="error_no_internet">تحقق من الاتصال بالإنترنت ثم أعد المحاولة.</string>
+
+    <!-- تسجيل مستخدم -->
+    <string name="register_user">تسجيل مستخدم</string>
+    <string name="register_employee">تسجيل موظف</string>
+    <string name="full_name">الاسم الكامل</string>
+    <string name="date_of_birth">تاريخ الميلاد</string>
+    <string name="id_number">رقم الهوية (٩ أرقام)</string>
+    <string name="user_photo">صورة المستخدم</string>
+    <string name="phone_number">رقم الهاتف</string>
+    <string name="password">كلمة السر</string>
+    <string name="confirm_password">تأكيد كلمة السر</string>
+    <string name="register">تسجيل</string>
+
+    <!-- تحقق -->
+    <string name="error_full_name_required">أدخل الاسم الكامل.</string>
+    <string name="error_date_invalid">تاريخ ميلاد غير صحيح.</string>
+    <string name="error_date_future">تاريخ الميلاد لا يمكن أن يكون في المستقبل.</string>
+    <string name="error_id_must_9_digits">رقم الهوية يجب أن يكون ٩ أرقام.</string>
+    <string name="error_phone_required">أدخل رقم الهاتف.</string>
+    <string name="error_password_required">أدخل كلمة السر.</string>
+    <string name="error_password_short">كلمة السر قصيرة جداً (٦ أحرف على الأقل).</string>
+    <string name="error_password_mismatch">كلمة السر وتأكيدها غير متطابقتين.</string>
+    <string name="registration_success">تم التسجيل بنجاح.</string>
 </resources>

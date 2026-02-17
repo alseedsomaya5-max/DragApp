@@ -21,11 +21,13 @@ import com.example.dragapp.ui.AddPatientFragment;
 import com.example.dragapp.ui.HomeFragment;
 import com.example.dragapp.ui.MoreFragment;
 import com.example.dragapp.ui.PatientDetailFragment;
+import com.example.dragapp.ui.RegisterEmployeeFragment;
+import com.example.dragapp.ui.RegisterUserFragment;
 import com.example.dragapp.ui.RemindersFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.NavListener {
+public class MainActivity extends AppCompatActivity implements HomeFragment.NavListener, MoreFragment.Callbacks {
 
     private MaterialToolbar toolbar;
     private BottomNavigationView bottomNav;
@@ -95,7 +97,21 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.NavL
             toolbar.setTitle(R.string.add_patient);
         } else if (f instanceof AddMedicationFragment) {
             toolbar.setTitle(R.string.add_medication);
+        } else if (f instanceof RegisterUserFragment) {
+            toolbar.setTitle(R.string.register_user);
+        } else if (f instanceof RegisterEmployeeFragment) {
+            toolbar.setTitle(R.string.register_employee);
         }
+    }
+
+    @Override
+    public void openRegisterUser() {
+        replaceFragment(new RegisterUserFragment(), true, getString(R.string.register_user));
+    }
+
+    @Override
+    public void openRegisterEmployee() {
+        replaceFragment(new RegisterEmployeeFragment(), true, getString(R.string.register_employee));
     }
 
     @Override
