@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:title="@string/page_home_title" />
+    <item
+        android:id="@+id/nav_reminders"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="@string/all_reminders_title" />
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/more_title" />
+</menu>
