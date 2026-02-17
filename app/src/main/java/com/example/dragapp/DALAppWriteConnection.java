@@ -1,6 +1,7 @@
 package com.example.dragapp;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -729,11 +730,14 @@ public class DALAppWriteConnection {
      */
     public <T> OperationResult<ArrayList<T>> saveData(T data, String tableName, String collectionId) {
         try {
+            Log.d(TAG, "saveData: tableName=" + tableName + ", collectionId=" + collectionId);
+
             // التحقق من صحة البيانات
             if (data == null) {
+                Log.e(TAG, "saveData: data is null");
                 return new OperationResult<>(false, "البيانات المراد حفظها لا يمكن أن تكون فارغة");
             }
-            
+
             // معالجة الكائن الواحد
             ArrayList<T> dataList;
             if (!(data instanceof Collection)) {
@@ -761,16 +765,20 @@ public class DALAppWriteConnection {
             
             
             // فقط إذا لم يكن موجوداً، سنحاول إنشاؤه
-            if (!tableExists(tableName, collectionId)) {
-                
+            boolean exists = tableExists(tableName, collectionId);
+            Log.d(TAG, "saveData: tableExists(" + tableName + ")=" + exists);
+
+            if (!exists) {
                 // استنتاج schema تلقائياً من الكائن الأول
                 String schema = null;
                 if (!dataList.isEmpty()) {
                     schema = inferSchemaFromObject(dataList.get(0));
                 }
-                
+                Log.d(TAG, "saveData: creating table, schema=" + schema);
+
                 boolean tableCreated = ensureTableExists(tableName, collectionId, schema); // مع schema
                 if (!tableCreated) {
+                    Log.e(TAG, "saveData: failed to create table " + tableName);
                     return new OperationResult<>(false, "فشل في إنشاء الجدول: " + tableName);
                 }
                 
@@ -828,20 +836,28 @@ public class DALAppWriteConnection {
                     if (saved) {
                         savedItems.add(item);
                         successCount++;
+                        Log.d(TAG, "saveData: document saved, documentId=" + documentId);
+                    } else {
+                        Log.e(TAG, "saveData: saveDocument failed, lastSaveError=" + lastSaveError);
                     }
                 } catch (Exception e) {
                     lastSaveError = e.getMessage() != null ? e.getMessage() : "خطأ غير متوقع";
+                    Log.e(TAG, "saveData: exception", e);
                 }
             }
-            
+
             if (successCount > 0) {
                 String message = "تم حفظ " + successCount + " عنصر بنجاح من أصل " + dataList.size();
+                Log.d(TAG, "saveData: success, " + message);
                 return new OperationResult<>(true, message, savedItems);
             } else {
-                return new OperationResult<>(false, lastSaveError != null ? lastSaveError : "فشل في حفظ جميع العناصر");
+                String err = lastSaveError != null ? lastSaveError : "فشل في حفظ جميع العناصر";
+                Log.e(TAG, "saveData: failed, " + err);
+                return new OperationResult<>(false, err);
             }
-            
+
         } catch (Exception e) {
+            Log.e(TAG, "saveData: exception", e);
             return new OperationResult<>(false, "خطأ في حفظ البيانات: " + e.getMessage());
         }
     }
@@ -870,13 +886,20 @@ public class DALAppWriteConnection {
      */
     public <T> OperationResult<ArrayList<T>> getData(String tableName, String collectionId, Class<T> classType) {
         try {
+            Log.d(TAG, "getData: tableName=" + tableName + ", collectionId=" + collectionId);
+
             // التحقق من وجود الجدول
-            if (!tableExists(tableName, collectionId)) {
-                return new OperationResult<>(false, "الجدول غير موجود: " + tableName);
+            boolean exists = tableExists(tableName, collectionId);
+            Log.d(TAG, "getData: tableExists(" + tableName + ")=" + exists);
+
+            if (!exists) {
+                Log.w(TAG, "getData: الجدول غير موجود، إرجاع قائمة فارغة: " + tableName);
+                // إرجاع نجاح مع قائمة فارغة حتى لا تتوقف الواجهة، ويستطيع المستخدم إضافة بيانات
+                return new OperationResult<>(true, "الجدول غير موجود بعد", new ArrayList<>());
             }
-            
-            URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" + 
-                            (collectionId != null ? collectionId : tableName) + "/documents");
+
+            String coll = collectionId != null ? collectionId : tableName;
+            URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" + coll + "/documents");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
@@ -894,22 +917,25 @@ public class DALAppWriteConnection {
                     response.append(line);
                 }
                 reader.close();
-                
+
                 // تحليل الاستجابة وتحويلها لكائنات Java
                 ArrayList<T> items = parseDocumentResponse(response.toString(), classType);
-                
+                Log.d(TAG, "getData: success, count=" + (items != null ? items.size() : 0));
+
                 return new OperationResult<>(true, "تم جلب البيانات بنجاح", items);
-                
+
             } else {
                 String errorMessage = readErrorResponse(connection);
+                Log.e(TAG, "getData: HTTP " + responseCode + ", " + errorMessage);
                 return new OperationResult<>(false, "فشل جلب البيانات: " + errorMessage);
             }
-            
+
         } catch (Exception e) {
+            Log.e(TAG, "getData: exception", e);
             return new OperationResult<>(false, "خطأ في جلب البيانات: " + e.getMessage());
         }
     }
-    
+
     /**
      * تحديث كائن موجود في قاعدة البيانات
      * @param data البيانات المحدثة
@@ -1223,10 +1249,11 @@ public class DALAppWriteConnection {
             
         } catch (Exception e) {
             // في حالة الخطأ، نفترض أن الجدول موجود لتجنب إعادة إنشائه
+            Log.w(TAG, "tableExists: exception for " + tableName + ", assuming exists", e);
             return true;
         }
     }
-    
+
     // === دوال مساعدة لقواعد البيانات ===
     
     /**
@@ -1304,29 +1331,34 @@ public class DALAppWriteConnection {
             }
             
             requestBody.put("data", cleanData);
-            
+
             String jsonBody = gson.toJson(requestBody);
-            
+            Log.d(TAG, "saveDocument: POST " + tableName + "/" + (collectionId != null ? collectionId : tableName) + ", documentId=" + documentId + ", dataKeys=" + cleanData.keySet());
+
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(jsonBody.getBytes());
             }
-            
+
             int responseCode = connection.getResponseCode();
-            
+            Log.d(TAG, "saveDocument: responseCode=" + responseCode);
+
             if (responseCode >= 200 && responseCode < 300) {
                 return true;
             } else {
                 String errorResponse = readErrorResponse(connection);
                 lastSaveError = parseAppwriteError(errorResponse);
+                Log.e(TAG, "saveDocument: error " + responseCode + ", " + errorResponse);
 
                 // إصلاح schema errors: محاولة أخرى بدون schema validation
                 if (errorResponse.contains("Unknown attribute") || errorResponse.contains("document_invalid_structure")) {
+                    Log.d(TAG, "saveDocument: retry saveWithoutSchemaValidation");
                     return saveWithoutSchemaValidation(tableName, collectionId, documentId, cleanData);
                 }
                 return false;
             }
         } catch (Exception e) {
             lastSaveError = e.getMessage() != null ? e.getMessage() : "خطأ اتصال";
+            Log.e(TAG, "saveDocument: exception", e);
             return false;
         }
     }
@@ -1390,24 +1422,29 @@ public class DALAppWriteConnection {
             simpleRequest.put("data", cleanData);
             
             String jsonBody = gson.toJson(simpleRequest);
-            
+            Log.d(TAG, "saveWithoutSchemaValidation: documentId=" + documentId + ", data=" + cleanData);
+
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(jsonBody.getBytes());
             }
-            
+
             int responseCode = connection.getResponseCode();
-            
+            Log.d(TAG, "saveWithoutSchemaValidation: responseCode=" + responseCode);
+
             if (responseCode >= 200 && responseCode < 300) {
                 return true;
             } else {
                 String errorResponse = readErrorResponse(connection);
+                lastSaveError = parseAppwriteError(errorResponse);
+                Log.e(TAG, "saveWithoutSchemaValidation: error " + responseCode + ", " + errorResponse);
                 return false;
             }
         } catch (Exception e) {
+            Log.e(TAG, "saveWithoutSchemaValidation: exception", e);
             return false;
         }
     }
-    
+
     /**
      * تحويل كائن Java إلى Map
      * @param obj الكائن المراد تحويله

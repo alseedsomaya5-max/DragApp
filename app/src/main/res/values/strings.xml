@@ -29,4 +29,5 @@
     <string name="about">حول التطبيق</string>
     <string name="check_appwrite">فحص اتصال Appwrite</string>
     <string name="connection_status">حالة الاتصال</string>
+    <string name="error_no_internet">تحقق من الاتصال بالإنترنت ثم أعد المحاولة.</string>
 </resources>

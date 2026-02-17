@@ -8,4 +8,5 @@
     <color name="ios_primary">#007AFF</color>
     <color name="ios_label">#3C3C43</color>
     <color name="ios_secondary">#8E8E93</color>
+    <color name="bottom_nav_color">#007AFF</color>
 </resources>
