@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- واجهة المستخدم المسجل -->
+        <LinearLayout
+            android:id="@+id/logged_in_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- بطاقة الملف الشخصي مع الصورة -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/ios_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <!-- الصورة الشخصية -->
+                    <FrameLayout
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="20dp">
+
+                        <ImageView
+                            android:id="@+id/user_profile_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@android:drawable/ic_menu_myplaces"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/circle_background"
+                            android:contentDescription="صورة المستخدم" />
+
+                        <ImageView
+                            android:id="@+id/camera_icon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="bottom|end"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:src="@android:drawable/ic_menu_camera"
+                            android:background="@drawable/circle_background_white"
+                            android:padding="8dp"
+                            android:contentDescription="تغيير الصورة" />
+
+                    </FrameLayout>
+
+                    <!-- اسم المستخدم -->
+                    <TextView
+                        android:id="@+id/user_name_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="اسم المستخدم"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/ios_label"
+                        android:gravity="center"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- البريد الإلكتروني -->
+                    <TextView
+                        android:id="@+id/user_email_display"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="user@example.com"
+                        android:textSize="16sp"
+                        android:textColor="@color/ios_secondary"
+                        android:gravity="center"
+                        android:layout_marginBottom="24dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ios_secondary"
+                        android:alpha="0.3"
+                        android:layout_marginBottom="20dp" />
+
+                    <!-- معلومات المستخدم التفصيلية -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@android:drawable/ic_menu_myplaces"
+                                android:layout_marginEnd="12dp"
+                                app:tint="@color/ios_secondary" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="الاسم الكامل"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/ios_secondary"
+                                    android:layout_marginBottom="4dp" />
+
+                                <TextView
+                                    android:id="@+id/user_name_text"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="اسم المستخدم"
+                                    android:textSize="16sp"
+                                    android:textColor="@color/ios_label" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@android:drawable/ic_menu_call"
+                                android:layout_marginEnd="12dp"
+                                app:tint="@color/ios_secondary" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="رقم الهاتف"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/ios_secondary"
+                                    android:layout_marginBottom="4dp" />
+
+                                <TextView
+                                    android:id="@+id/user_phone_text"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="0500000000"
+                                    android:textSize="16sp"
+                                    android:textColor="@color/ios_label" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@android:drawable/ic_dialog_email"
+                                android:layout_marginEnd="12dp"
+                                app:tint="@color/ios_secondary" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="البريد الإلكتروني"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/ios_secondary"
+                                    android:layout_marginBottom="4dp" />
+
+                                <TextView
+                                    android:id="@+id/user_email_text"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="user@example.com"
+                                    android:textSize="16sp"
+                                    android:textColor="@color/ios_label"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground"
+                                    android:padding="4dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- بطاقة الإعدادات -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/ios_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- زر تعديل البروفايل -->
+                    <LinearLayout
+                        android:id="@+id/btn_edit_profile_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginBottom="8dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_edit"
+                            android:layout_marginEnd="16dp"
+                            app:tint="@color/ios_primary" />
+
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ios_secondary"
+                        android:alpha="0.3"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- زر تغيير كلمة المرور -->
+                    <LinearLayout
+                        android:id="@+id/btn_change_password_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginBottom="8dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_lock_lock"
+                            android:layout_marginEnd="16dp"
+                            app:tint="@color/ios_primary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="تغيير كلمة المرور"
+                            android:textSize="16sp"
+                            android:textColor="@color/ios_label" />
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_more"
+                            app:tint="@color/ios_secondary" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ios_secondary"
+                        android:alpha="0.3"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- زر تسجيل الخروج -->
+                    <LinearLayout
+                        android:id="@+id/btn_logout_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_close_clear_cancel"
+                            android:layout_marginEnd="16dp"
+                            app:tint="@color/ios_secondary" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="تسجيل الخروج"
+                            android:textSize="16sp"
+                            android:textColor="@color/ios_secondary" />
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_more"
+                            app:tint="@color/ios_secondary" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- واجهة المستخدم غير المسجل -->
+        <LinearLayout
+            android:id="@+id/not_logged_in_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="40dp">
+
+            <!-- أيقونة المستخدم -->
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:layout_marginBottom="24dp"
+                app:tint="@color/ios_secondary"
+                android:alpha="0.6" />
+
+            <!-- رسالة للمستخدم -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/not_logged_in"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/ios_label"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/please_login"
+                android:textSize="16sp"
+                android:textColor="@color/ios_secondary"
+                android:gravity="center"
+                android:layout_marginBottom="32dp" />
+
+            <!-- أزرار التسجيل -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="@string/login_now"
+                android:backgroundTint="@color/ios_primary"
+                android:textColor="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_register"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/register_now"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:strokeColor="@color/ios_primary"
+                android:textColor="@color/ios_primary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

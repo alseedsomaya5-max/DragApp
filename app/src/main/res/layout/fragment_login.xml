@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <!-- شعار التطبيق -->
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            android:layout_marginBottom="24dp"
+            app:tint="@color/ios_primary" />
+
+        <!-- عنوان تسجيل الدخول -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="تسجيل الدخول"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/ios_label"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="أدخل رقم الهاتف وكلمة السر للدخول"
+            android:textSize="14sp"
+            android:textColor="@color/ios_secondary"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
+
+        <!-- حقول الإدخال -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/phone_number"
+            app:boxBackgroundColor="@color/ios_card"
+            app:boxStrokeColor="@color/ios_primary"
+            app:hintTextColor="@color/ios_primary"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:textDirection="ltr" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            app:boxBackgroundColor="@color/ios_card"
+            app:boxStrokeColor="@color/ios_primary"
+            app:hintTextColor="@color/ios_primary"
+            app:passwordToggleEnabled="true"
+            android:layout_marginBottom="32dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/input_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- زر تسجيل الدخول -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="دخول"
+            android:backgroundTint="@color/ios_primary"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <!-- رابط للتسجيل -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ليس لديك حساب؟ "
+                android:textSize="14sp"
+                android:textColor="@color/ios_secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_register"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="إنشاء حساب"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:textColor="@color/ios_primary"
+                android:textSize="14sp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:padding="0dp" />
+
+        </LinearLayout>
+
+        <!-- معلومات إضافية -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ملاحظة: استخدم رقم الهوية الذي سجلت به"
+            android:textSize="12sp"
+            android:textColor="@color/ios_secondary"
+            android:gravity="center"
+            android:layout_marginTop="24dp"
+            android:alpha="0.7" />
+
+    </LinearLayout>
+
+</ScrollView>
