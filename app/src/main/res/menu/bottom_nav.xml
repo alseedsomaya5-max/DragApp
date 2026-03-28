@@ -9,7 +9,7 @@
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="@string/all_reminders_title" />
     <item
-        android:id="@+id/nav_more"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:title="@string/more_title" />
+        android:id="@+id/nav_profile"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="@string/profile_title" />
 </menu>

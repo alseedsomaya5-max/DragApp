@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.dragapp.DALAppWriteConnection;
 import com.example.dragapp.R;
-import com.example.dragapp.model.Patient;
+import com.example.dragapp.model.User;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -51,18 +51,21 @@ public class AddPatientFragment extends Fragment {
             Toast.makeText(requireContext(), R.string.patient_name, Toast.LENGTH_SHORT).show();
             return;
         }
-        Patient patient = new Patient(UUID.randomUUID().toString(), name);
+        User patient = new User();
+        patient.setId(UUID.randomUUID().toString());
+        patient.setName(name);
+        // patient.setUserType("patient"); // Removed - userType field deleted
         btnSave.setEnabled(false);
 
         new Thread(() -> {
             DALAppWriteConnection dal = new DALAppWriteConnection(requireContext());
-            DALAppWriteConnection.OperationResult<ArrayList<Patient>> res = dal.saveData(patient, PATIENTS_COLLECTION, null);
+            DALAppWriteConnection.OperationResult<ArrayList<User>> res = dal.saveData(patient, PATIENTS_COLLECTION, null);
 
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
                 btnSave.setEnabled(true);
                 if (res != null && res.success && res.data != null && !res.data.isEmpty()) {
-                    Patient saved = res.data.get(0);
+                    User saved = res.data.get(0);
                     Bundle result = new Bundle();
                     result.putSerializable(KEY_PATIENT, saved);
                     getParentFragmentManager().setFragmentResult(REQUEST_KEY_ADD_PATIENT, result);

@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.dragapp.DALAppWriteConnection;
 import com.example.dragapp.R;
-import com.example.dragapp.model.Patient;
+import com.example.dragapp.model.User;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -23,15 +23,15 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     public interface NavListener {
-        void openPatientDetail(Patient patient);
+        void openPatientDetail(User patient);
         void openAddPatient();
-        void openAddMedication(Patient patient);
+        void openAddMedication(User patient);
     }
 
     private LinearLayout patientsContainer;
     private TextView emptyPatients;
     private MaterialButton btnAddPatient;
-    private final List<Patient> patients = new ArrayList<>();
+    private final List<User> patients = new ArrayList<>();
 
     /** نفس اسم المجموعة المستخدم في AddPatientFragment */
     private static final String PATIENTS_COLLECTION = "patients";
@@ -56,7 +56,7 @@ public class HomeFragment extends Fragment {
         });
 
         getParentFragmentManager().setFragmentResultListener(AddPatientFragment.REQUEST_KEY_ADD_PATIENT, getViewLifecycleOwner(), (key, bundle) -> {
-            Patient p = (Patient) bundle.getSerializable(AddPatientFragment.KEY_PATIENT);
+            User p = (User) bundle.getSerializable(AddPatientFragment.KEY_PATIENT);
             addPatient(p);
         });
     }
@@ -71,13 +71,15 @@ public class HomeFragment extends Fragment {
     private void loadPatientsFromAppwrite() {
         new Thread(() -> {
             DALAppWriteConnection dal = new DALAppWriteConnection(requireContext());
-            DALAppWriteConnection.OperationResult<ArrayList<Patient>> res = dal.getData(PATIENTS_COLLECTION, null, Patient.class);
+            DALAppWriteConnection.OperationResult<ArrayList<User>> res = dal.getData(PATIENTS_COLLECTION, null, User.class);
 
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
                 if (res != null && res.success && res.data != null) {
                     patients.clear();
-                    patients.addAll(res.data);
+                    for (User p : res.data) {
+                        patients.add(p);
+                    }
                     refreshPatientList();
                 }
             });
@@ -90,7 +92,7 @@ public class HomeFragment extends Fragment {
             emptyPatients.setVisibility(View.VISIBLE);
         } else {
             emptyPatients.setVisibility(View.GONE);
-            for (Patient p : patients) {
+            for (User p : patients) {
                 View row = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, patientsContainer, false);
                 TextView text = row.findViewById(android.R.id.text1);
                 text.setText(p.getName() != null ? p.getName() : "");
@@ -104,7 +106,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public void addPatient(Patient patient) {
+    public void addPatient(User patient) {
         if (patient != null) {
             patients.add(patient);
             refreshPatientList();

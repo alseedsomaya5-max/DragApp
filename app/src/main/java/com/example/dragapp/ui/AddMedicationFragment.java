@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.dragapp.R;
-import com.example.dragapp.model.Patient;
+import com.example.dragapp.model.User;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -19,13 +19,13 @@ public class AddMedicationFragment extends Fragment {
 
     private static final String ARG_PATIENT = "patient";
 
-    private Patient patient;
+    private User patient;
     private TextInputEditText medicationNameInput;
     private TextInputEditText dosageInput;
     private TextInputEditText timeInput;
     private MaterialButton btnSave;
 
-    public static AddMedicationFragment newInstance(Patient patient) {
+    public static AddMedicationFragment newInstance(User patient) {
         AddMedicationFragment f = new AddMedicationFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PATIENT, patient);
@@ -37,7 +37,7 @@ public class AddMedicationFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            patient = (Patient) getArguments().getSerializable(ARG_PATIENT);
+            patient = (User) getArguments().getSerializable(ARG_PATIENT);
         }
     }
 

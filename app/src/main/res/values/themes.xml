@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.DragApp" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/ios_primary</item>
-        <item name="android:statusBarColor">@color/ios_bg</item>
+        <item name="android:statusBarColor">@color/ios_primary</item>
         <item name="android:navigationBarColor">@color/ios_bg</item>
         <item name="android:windowBackground">@color/ios_bg</item>
     </style>

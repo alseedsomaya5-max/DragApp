@@ -965,10 +965,11 @@ public class DALAppWriteConnection {
             }
             
             Map<String, Object> documentData = convertObjectToMap(data);
-            documentData.put("updatedAt", new Date().toString());
-            documentData.put("updatedBy", currentUserId != null ? currentUserId : "system");
+            // Remove automatic fields that are not in the schema
+            // documentData.put("updatedAt", new Date().toString());
+            // documentData.put("updatedBy", currentUserId != null ? currentUserId : "system");
             
-            boolean updated = saveDocument(tableName, collectionId, documentId, documentData);
+            boolean updated = updateDocument(tableName, collectionId, documentId, documentData);
             
             if (updated) {
                 return new OperationResult<>(true, "تم التحديث بنجاح", data);
@@ -2383,5 +2384,67 @@ public class DALAppWriteConnection {
         } catch (Exception e) {
         }
         return null;
+    }
+    
+    /**
+     * تحديث مستند موجود في قاعدة البيانات
+     * @param tableName اسم الجدول
+     * @param collectionId معرف المجموعة (اختياري)
+     * @param documentId معرف المستند المراد تحديثه
+     * @param documentData بيانات المستند الجديدة
+     * @return true إذا تم التحديث بنجاح، false إذا فشل
+     */
+    private boolean updateDocument(String tableName, String collectionId, String documentId, Map<String, Object> documentData) {
+        try {
+            URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" + 
+                            (collectionId != null ? collectionId : tableName) + "/documents/" + documentId);
+            
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+            connection.setRequestProperty("X-Appwrite-Key", API_KEY);
+            connection.setDoOutput(true);
+            
+            // تنظيف البيانات من الحقول الفارغة والحقول غير المسموح بها
+            Map<String, Object> cleanData = new HashMap<>();
+            for (Map.Entry<String, Object> entry : documentData.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                
+                // إزالة الحقول غير المسموح بها في Appwrite schema
+                if (value != null && !value.toString().isEmpty() &&
+                    !key.equals("createdAt") && !key.equals("updatedAt") && !key.equals("updatedBy")) {
+                    cleanData.put(key, value);
+                }
+            }
+            
+            // إعداد البيانات للإرسال
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("data", cleanData);
+            
+            String jsonBody = gson.toJson(requestBody);
+            Log.d(TAG, "updateDocument: PUT " + tableName + "/" + (collectionId != null ? collectionId : tableName) + "/" + documentId + ", dataKeys=" + cleanData.keySet());
+            
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(jsonBody.getBytes());
+            }
+            
+            int responseCode = connection.getResponseCode();
+            Log.d(TAG, "updateDocument: responseCode=" + responseCode);
+            
+            if (responseCode >= 200 && responseCode < 300) {
+                return true;
+            } else {
+                String errorResponse = readErrorResponse(connection);
+                lastSaveError = parseAppwriteError(errorResponse);
+                Log.e(TAG, "updateDocument: error " + responseCode + ", " + errorResponse);
+                return false;
+            }
+        } catch (Exception e) {
+            lastSaveError = e.getMessage() != null ? e.getMessage() : "خطأ اتصال";
+            Log.e(TAG, "updateDocument: exception", e);
+            return false;
+        }
     }
 }

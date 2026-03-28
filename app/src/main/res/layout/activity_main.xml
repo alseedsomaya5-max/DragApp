@@ -7,19 +7,14 @@
     android:layout_height="match_parent"
     android:background="@color/ios_bg"
     android:orientation="vertical"
+    android:fitsSystemWindows="false"
     tools:context=".MainActivity">
 
-    <!-- هيدر علوي -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <!-- هيدر علوي مخصص -->
+    <com.example.dragapp.ui.CustomAppHeader
+        android:id="@+id/custom_header"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/ios_card"
-        android:elevation="4dp"
-        app:title="@string/page_home_title"
-        app:titleTextColor="@color/ios_label"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:navigationIconTint="@color/ios_primary" />
+        android:layout_height="wrap_content" />
 
     <!-- منطقة المحتوى -->
     <FrameLayout

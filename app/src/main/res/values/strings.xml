@@ -53,4 +53,28 @@
     <string name="error_password_short">كلمة السر قصيرة جداً (٦ أحرف على الأقل).</string>
     <string name="error_password_mismatch">كلمة السر وتأكيدها غير متطابقتين.</string>
     <string name="registration_success">تم التسجيل بنجاح.</string>
+    
+    <!-- Header subtitles -->
+    <string name="home_subtitle">إدارة منبهات الأدوية</string>
+    <string name="reminders_subtitle">جميع المواعيد المحفوظة</string>
+    <string name="more_subtitle">الإعدادات والمزيد</string>
+    <string name="add_patient_subtitle">إضافة شخص جديد للنظام</string>
+    <string name="add_medication_subtitle">إضافة منبه دواء جديد</string>
+    <string name="register_user_subtitle">إنشاء حساب مستخدم جديد</string>
+    <string name="register_employee_subtitle">إنشاء حساب موظف جديد</string>
+    
+    <!-- Profile page -->
+    <string name="profile_title">البروفايل</string>
+    <string name="profile_subtitle">معلوماتك الشخصية</string>
+    <string name="not_logged_in">لم تقم بتسجيل الدخول</string>
+    <string name="please_login">يرجى تسجيل الدخول أو إنشاء حساب جديد</string>
+    <string name="login_now">تسجيل الدخول الآن</string>
+    <string name="register_now">إنشاء حساب جديد</string>
+    <string name="welcome_back">مرحباً بعودتك</string>
+    <string name="user_name">اسم المستخدم</string>
+    <string name="user_email">البريد الإلكتروني</string>
+    <string name="user_phone">رقم الهاتف</string>
+    <string name="logout">تسجيل الخروج</string>
+    <string name="edit_profile">تعديل البروفايل</string>
+    <string name="my_account">حسابي</string>
 </resources>

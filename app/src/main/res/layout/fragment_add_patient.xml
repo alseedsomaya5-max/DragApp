@@ -15,7 +15,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/patient_name"
-            app:boxBackgroundColor="@color/ios_card">
+            app:boxBackgroundColor="@color/ios_card"
+            app:boxStrokeColor="@color/ios_primary"
+            app:hintTextColor="@color/ios_primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/patient_name_input"
@@ -29,6 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/save" />
+            android:text="@string/save"
+            android:backgroundTint="@color/ios_primary"
+            android:textColor="@color/white" />
     </LinearLayout>
 </ScrollView>

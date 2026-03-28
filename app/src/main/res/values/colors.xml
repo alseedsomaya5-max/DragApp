@@ -2,11 +2,15 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <!-- iOS-like -->
+    <!-- iOS-like with Blue-Green theme -->
     <color name="ios_bg">#F2F2F7</color>
     <color name="ios_card">#FFFFFF</color>
-    <color name="ios_primary">#007AFF</color>
+    <color name="ios_primary">#008B8B</color>
     <color name="ios_label">#3C3C43</color>
     <color name="ios_secondary">#8E8E93</color>
-    <color name="bottom_nav_color">#007AFF</color>
+    <color name="bottom_nav_color">#008B8B</color>
+    <!-- Additional Blue-Green shades -->
+    <color name="blue_green_light">#20B2AA</color>
+    <color name="blue_green_dark">#006666</color>
+    <color name="blue_green_accent">#00A8A8</color>
 </resources>

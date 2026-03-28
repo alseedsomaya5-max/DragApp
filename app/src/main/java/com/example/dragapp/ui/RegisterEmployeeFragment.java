@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.dragapp.DALAppWriteConnection;
 import com.example.dragapp.R;
-import com.example.dragapp.model.Employee;
+import com.example.dragapp.model.User;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -21,7 +21,7 @@ import java.util.UUID;
 
 public class RegisterEmployeeFragment extends Fragment {
 
-    public static final String COLLECTION_EMPLOYEES = "employees";
+    public static final String COLLECTION_USERS = "users";
     private static final int MIN_PASSWORD_LENGTH = 6;
 
     private TextInputEditText inputFullName, inputPhone, inputPassword, inputConfirmPassword;
@@ -72,16 +72,17 @@ public class RegisterEmployeeFragment extends Fragment {
             return;
         }
 
-        Employee emp = new Employee();
+        User emp = new User();
         emp.setId(UUID.randomUUID().toString());
-        emp.setFullName(fullName.trim());
+        emp.setName(fullName.trim());
         emp.setPhone(phone.trim());
         emp.setPassword(password);
+        // emp.setUserType("employee"); // Removed - userType field deleted
 
         btnRegister.setEnabled(false);
         new Thread(() -> {
             DALAppWriteConnection dal = new DALAppWriteConnection(requireContext());
-            DALAppWriteConnection.OperationResult<ArrayList<Employee>> res = dal.saveData(emp, COLLECTION_EMPLOYEES, null);
+            DALAppWriteConnection.OperationResult<ArrayList<User>> res = dal.saveData(emp, COLLECTION_USERS, null);
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
                 btnRegister.setEnabled(true);
