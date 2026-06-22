@@ -28,11 +28,11 @@ public class DALAppWriteConnection {
     private static final String TAG = "DALAppWriteConnection";
     
     // === إعدادات الاتصال مع Appwrite ===
-    private static final String BASE_URL = "https://fra.cloud.appwrite.io/v1";
-    private static final String PROJECT_ID = "69073626002d86ce2ad8";
-    private static final String API_KEY = "standard_afbf957817fce6194f9c21fdd57f6d4553597bcd9152dcd3adf781432075f17dfb249fabff2572eaa5cb36b75ada168f43e564947451f50b66b91033fd7354514aadd6d0ff2d13df8b1d0db076815a896f683100571077a0f8f1fda543ed2fe8cf4d47f668fe4e320474ab0c4c829d3b2e8d3e0e7951304460d544ce162908cc";
-    private static final String MAIN_DATABASE_ID = "690c6174000ea7b6bc96"; // AppDb
-    private static final String MAIN_STORAGE_BUCKET_ID = "690c619f003dcfb4358a"; // AppWriteStorage
+    public static final String BASE_URL = "https://fra.cloud.appwrite.io/v1";
+    public static final String PROJECT_ID = "69073626002d86ce2ad8";
+    public static final String API_KEY = "standard_afbf957817fce6194f9c21fdd57f6d4553597bcd9152dcd3adf781432075f17dfb249fabff2572eaa5cb36b75ada168f43e564947451f50b66b91033fd7354514aadd6d0ff2d13df8b1d0db076815a896f683100571077a0f8f1fda543ed2fe8cf4d47f668fe4e320474ab0c4c829d3b2e8d3e0e7951304460d544ce162908cc";
+    public static final String MAIN_DATABASE_ID = "690c6174000ea7b6bc96"; // AppDb
+    public static final String MAIN_STORAGE_BUCKET_ID = "690c619f003dcfb4358a"; // AppWriteStorage
     private static final String USER_FILES_BUCKET_ID = "69056d1b001eba1f06eb"; // يمكن تغييره لاحقاً
     
     // === متغيرات حالة الجلسة ===
@@ -788,12 +788,14 @@ public class DALAppWriteConnection {
                     actualCollectionId = expectedCollectionName;
                 }
             } else {
-                
                 // التحقق من وجود attributes - إذا كانت فارغة، أضف schema تلقائياً
                 String schema = null;
                 if (!dataList.isEmpty()) {
                     schema = inferSchemaFromObject(dataList.get(0));
                     createTableAttributes(actualCollectionId, schema, tableName);
+                    
+                    // انتظار أطول لضمان تفعيل الحقول الجديدة في السيرفر (Appwrite يحتاج وقت للمزامنة)
+                    try { Thread.sleep(5000); } catch (Exception ignored) {}
                 }
             }
             
@@ -820,17 +822,6 @@ public class DALAppWriteConnection {
                     documentData.remove("class"); // إزالة أي حقول من Java
                     documentData.remove("$"); // إزالة أي حقول خاصة
                     documentData.remove("metadata"); // إزالة metadata - يسبب مشاكل
-                    
-                    // تحويل "id" إلى اسم فريد حسب نوع الكائن
-                    if (documentData.containsKey("id")) {
-                        String className = item.getClass().getSimpleName().toLowerCase();
-                        String newIdKey = className + "Id";
-                        documentData.put(newIdKey, documentData.get("id"));
-                        documentData.remove("id");
-                    }
-                    
-                    // ملاحظة: لا نضيف metadata لأن Appwrite يتطلب تعريف الحقول مسبقاً
-                    // يجب إضافة الحقول من لوحة التحكم Appwrite Console
                     
                     boolean saved = saveDocument(tableName, actualCollectionId, documentId, documentData);
                     if (saved) {
@@ -1345,14 +1336,18 @@ public class DALAppWriteConnection {
 
             if (responseCode >= 200 && responseCode < 300) {
                 return true;
+            } else if (responseCode == 409) {
+                Log.d(TAG, "saveDocument: Conflict (409), attempting update instead of create");
+                return updateDocument(tableName, collectionId, documentId, documentData);
             } else {
                 String errorResponse = readErrorResponse(connection);
                 lastSaveError = parseAppwriteError(errorResponse);
-                Log.e(TAG, "saveDocument: error " + responseCode + ", " + errorResponse);
+                Log.e(TAG, "saveDocument: error " + responseCode + ", FULL RESPONSE: " + errorResponse);
 
                 // إصلاح schema errors: محاولة أخرى بدون schema validation
-                if (errorResponse.contains("Unknown attribute") || errorResponse.contains("document_invalid_structure")) {
-                    Log.d(TAG, "saveDocument: retry saveWithoutSchemaValidation");
+                if (errorResponse.contains("Unknown attribute") || errorResponse.contains("document_invalid_structure") || 
+                    errorResponse.contains("Missing attribute") || errorResponse.contains("Invalid document structure")) {
+                    Log.d(TAG, "saveDocument: retry saveWithoutSchemaValidation due to schema sync lag");
                     return saveWithoutSchemaValidation(tableName, collectionId, documentId, cleanData);
                 }
                 return false;
@@ -1362,6 +1357,10 @@ public class DALAppWriteConnection {
             Log.e(TAG, "saveDocument: exception", e);
             return false;
         }
+    }
+
+    public String getLastSaveError() {
+        return lastSaveError;
     }
 
     /** استخراج رسالة خطأ مفهومة من استجابة Appwrite JSON */
@@ -1434,6 +1433,9 @@ public class DALAppWriteConnection {
 
             if (responseCode >= 200 && responseCode < 300) {
                 return true;
+            } else if (responseCode == 409) {
+                Log.d(TAG, "saveDocument: Conflict (409), attempting update instead of create");
+                return updateDocument(tableName, collectionId, documentId, documentData);
             } else {
                 String errorResponse = readErrorResponse(connection);
                 lastSaveError = parseAppwriteError(errorResponse);
@@ -1877,8 +1879,8 @@ public class DALAppWriteConnection {
         
         try {
             // بناء الرابط الصحيح للملف في Appwrite Frankfurt region
-            // استخدام /download مع API key في الرابط للوصول للملف
-            fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileId + "/download?project=" + PROJECT_ID;
+            // استخدام /preview بدلاً من /download لعرض الصورة بشكل صحيح
+            fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileId + "/preview?project=" + PROJECT_ID;
             
             // محاولة استخراج حجم الملف إذا كان متوفراً من الاستجابة
             String sizeString = extractValue(responseString, "sizeOriginal");
@@ -1950,7 +1952,7 @@ public class DALAppWriteConnection {
             fileInfo.bucketId = bucketId;
             
             if (fileInfo.fileId != null) {
-                fileInfo.fileUrl = "https://cloud.appwrite.io/v1/storage/buckets/" + bucketId + "/files/" + fileInfo.fileId;
+                fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileInfo.fileId + "/preview?project=" + PROJECT_ID;
                 
                 // استخراج الحجم
                 String sizeString = extractValue(responseString, "sizeOriginal");
@@ -2155,10 +2157,10 @@ public class DALAppWriteConnection {
             
             int responseCode = connection.getResponseCode();
             if (responseCode >= 200 && responseCode < 300) {
-                // تم إضافة الصلاحية بنجاح
+                Log.d(TAG, "createAttribute: success for " + name + " in " + tableName);
             } else {
                 String errorResponse = readErrorResponse(connection);
-                // فشل إضافة الصلاحية
+                Log.e(TAG, "createAttribute: error " + responseCode + " for " + name + " in " + tableName + ": " + errorResponse);
             }
             
         } catch (Exception e) {
@@ -2280,7 +2282,7 @@ public class DALAppWriteConnection {
                 Object value = entry.getValue();
                 
                 // تجاهل الحقول الخاصة
-                if (key.equals("class") || key.equals("$") || key.equals("metadata") ||
+                if (key.equals("class") || key.startsWith("$") || key.equals("metadata") ||
                     key.equals("documentId") || key.equals("createdAt") || key.equals("createdBy")) {
                     continue;
                 }
@@ -2412,9 +2414,13 @@ public class DALAppWriteConnection {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 
-                // إزالة الحقول غير المسموح بها في Appwrite schema
-                if (value != null && !value.toString().isEmpty() &&
-                    !key.equals("createdAt") && !key.equals("updatedAt") && !key.equals("updatedBy")) {
+                // إزالة الحقول غير المسموح بها في Appwrite schema (مثل $id و createdAt)
+                if (key.startsWith("$") || key.equals("createdAt") || key.equals("updatedAt") || 
+                    key.equals("updatedBy") || key.equals("class") || key.equals("metadata")) {
+                    continue;
+                }
+                
+                if (value != null) {
                     cleanData.put(key, value);
                 }
             }
@@ -2435,15 +2441,63 @@ public class DALAppWriteConnection {
             
             if (responseCode >= 200 && responseCode < 300) {
                 return true;
+            } else if (responseCode == 409) {
+                Log.d(TAG, "saveDocument: Conflict (409), attempting update instead of create");
+                return updateDocument(tableName, collectionId, documentId, documentData);
             } else {
                 String errorResponse = readErrorResponse(connection);
                 lastSaveError = parseAppwriteError(errorResponse);
                 Log.e(TAG, "updateDocument: error " + responseCode + ", " + errorResponse);
+                
+                // إضافة محاولة بدون التحقق من الهيكل (نفس منطق الحفظ)
+                if (errorResponse.contains("Unknown attribute") || errorResponse.contains("document_invalid_structure")) {
+                    Log.d(TAG, "updateDocument: retry updateWithoutSchemaValidation");
+                    return updateWithoutSchemaValidation(tableName, collectionId, documentId, cleanData);
+                }
                 return false;
             }
         } catch (Exception e) {
             lastSaveError = e.getMessage() != null ? e.getMessage() : "خطأ اتصال";
             Log.e(TAG, "updateDocument: exception", e);
+            return false;
+        }
+    }
+
+    /** تحديث مستند بدون التحقق من الهيكل */
+    private boolean updateWithoutSchemaValidation(String tableName, String collectionId, String documentId, Map<String, Object> documentData) {
+        try {
+            URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" + 
+                            (collectionId != null ? collectionId : tableName) + "/documents/" + documentId);
+            
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+            connection.setRequestProperty("X-Appwrite-Key", API_KEY);
+            connection.setDoOutput(true);
+            
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("data", documentData);
+            
+            String jsonBody = gson.toJson(requestBody);
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(jsonBody.getBytes());
+            }
+            
+            int responseCode = connection.getResponseCode();
+            if (responseCode >= 200 && responseCode < 300) {
+                return true;
+            } else if (responseCode == 409) {
+                Log.d(TAG, "saveDocument: Conflict (409), attempting update instead of create");
+                return updateDocument(tableName, collectionId, documentId, documentData);
+            } else {
+                String errorResponse = readErrorResponse(connection);
+                lastSaveError = parseAppwriteError(errorResponse);
+                Log.e(TAG, "updateWithoutSchemaValidation: error " + responseCode + ", " + errorResponse);
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "updateWithoutSchemaValidation: exception", e);
             return false;
         }
     }

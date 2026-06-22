@@ -1,0 +1,168 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; padding: 40px; background-color: #f0f4f8; }
+    .header { text-align: center; color: #008B8B; border-bottom: 3px solid #008B8B; padding-bottom: 20px; margin-bottom: 40px; }
+    .description { direction: rtl; text-align: right; background: #e0f2f1; padding: 20px; border-right: 6px solid #008B8B; margin-bottom: 25px; font-weight: bold; font-size: 1.2em; color: #004d40; border-radius: 8px; }
+    .code-container { background: #1e1e1e; color: #d4d4d4; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid #333; }
+    pre { direction: ltr; text-align: left; margin: 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 10.5pt; white-space: pre-wrap; word-wrap: break-word; line-height: 1.5; }
+    .title { color: #4ec9b0; font-size: 1.5em; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 10px; }
+    .keyword { color: #569cd6; }
+    .comment { color: #6a9955; }
+    .string { color: #ce9178; }
+</style>
+</head>
+<body>
+    <div class='header'>
+        <h1>الكود الكامل لإعدادات واتصال Appwrite</h1>
+        <p>مشروع منبه الأدوية الذكي (DragApp)</p>
+    </div>
+
+    <div class='description'>
+        هذا هو ملف الجافا الكامل (DALAppWriteConnection.java) المسؤول عن ربط التطبيق بكافة خدمات Appwrite. يحتوي الكود على إعدادات السيرفر، مفتاح الأمان، ومعرفات الجداول، بالإضافة إلى كافة العمليات البرمجية لإدارة المرضى والأدوية والملفات سحابياً.
+    </div>
+
+    <div class='code-container'>
+        <div class='title'>File: DALAppWriteConnection.java</div>
+        <pre>
+package com.example.dragapp;
+
+import android.content.Context;
+import android.util.Log;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+
+public class DALAppWriteConnection {
+
+    private static final String TAG = "DALAppWriteConnection";
+
+    // === إعدادات الاتصال مع Appwrite ===
+    private static final String BASE_URL = "https://fra.cloud.appwrite.io/v1";
+    private static final String PROJECT_ID = "69073626002d86ce2ad8";
+    private static final String API_KEY = "standard_afbf957817fce6194f9c21fdd57f6d4553597bcd9152dcd3adf781432075f17dfb249fabff2572eaa5cb36b75ada168f43e564947451f50b66b91033fd7354514aadd6d0ff2d13df8b1d0db076815a896f683100571077a0f8f1fda543ed2fe8cf4d47f668fe4e320474ab0c4c829d3b2e8d3e0e7951304460d544ce162908cc";
+    private static final String MAIN_DATABASE_ID = "690c6174000ea7b6bc96";
+    private static final String MAIN_STORAGE_BUCKET_ID = "690c619f003dcfb4358a";
+
+    private String currentUserId = null;
+    private String currentUserEmail = null;
+    private Context context;
+    private Gson gson;
+
+    public DALAppWriteConnection(Context context) {
+        this.context = context;
+        this.gson = new Gson();
+    }
+
+    /** اختبار الاتصال */
+    public boolean testConnection() {
+        try {
+            URL url = new URL(BASE_URL + "/health");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            int responseCode = connection.getResponseCode();
+            return responseCode == 200 || responseCode == 401;
+        } catch (Exception e) { return false; }
+    }
+
+    /** حفظ البيانات - الكود الكامل للعملية */
+    public &lt;T&gt; OperationResult&lt;ArrayList&lt;T&gt;&gt; saveData(T data, String tableName, String collectionId) {
+        try {
+            ArrayList&lt;T&gt; dataList = (data instanceof Collection) ? (ArrayList&lt;T&gt;) data : new ArrayList&lt;&gt;(Arrays.asList(data));
+            String actualCollectionId = getActualCollectionId(tableName, collectionId);
+            if (actualCollectionId == null) actualCollectionId = (collectionId != null ? collectionId : tableName);
+
+            if (!tableExists(tableName, collectionId)) {
+                createTable(tableName, collectionId, inferSchemaFromObject(dataList.get(0)));
+            }
+
+            ArrayList&lt;T&gt; savedItems = new ArrayList&lt;&gt;();
+            for (T item : dataList) {
+                String docId = UUID.randomUUID().toString();
+                Map&lt;String, Object&gt; body = new HashMap&lt;&gt;();
+                body.put("documentId", docId);
+                body.put("data", convertObjectToMap(item));
+
+                if (saveDocument(tableName, actualCollectionId, docId, convertObjectToMap(item))) {
+                    savedItems.add(item);
+                }
+            }
+            return new OperationResult&lt;&gt;(true, "تم الحفظ", savedItems);
+        } catch (Exception e) { return new OperationResult&lt;&gt;(false, e.getMessage()); }
+    }
+
+    /** جلب البيانات */
+    public &lt;T&gt; OperationResult&lt;ArrayList&lt;T&gt;&gt; getData(String tableName, String collectionId, Class&lt;T&gt; classType) {
+        try {
+            String coll = collectionId != null ? collectionId : tableName;
+            URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" + coll + "/documents");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+            conn.setRequestProperty("X-Appwrite-Key", API_KEY);
+
+            if (conn.getResponseCode() == 200) {
+                String response = readResponse(conn.getInputStream());
+                return new OperationResult&lt;&gt;(true, "نجاح", parseDocumentResponse(response, classType));
+            }
+        } catch (Exception e) { return new OperationResult&lt;&gt;(false, e.getMessage()); }
+        return new OperationResult&lt;&gt;(false, "فشل الجلب");
+    }
+
+    /** حذف البيانات */
+    public OperationResult&lt;Void&gt; deleteData(String tableName, String documentId, String collectionId) {
+        try {
+            URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" +
+                            (collectionId != null ? collectionId : tableName) + "/documents/" + documentId);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("DELETE");
+            conn.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+            conn.setRequestProperty("X-Appwrite-Key", API_KEY);
+            if (conn.getResponseCode() == 204 || conn.getResponseCode() == 200)
+                return new OperationResult&lt;&gt;(true, "تم الحذف");
+        } catch (Exception e) { return new OperationResult&lt;&gt;(false, e.getMessage()); }
+        return new OperationResult&lt;&gt;(false, "فشل الحذف");
+    }
+
+    /** رفع الملفات (الصور) */
+    public OperationResult&lt;FileInfo> uploadFile(byte[] fileData, String fileName, String mimeType, String bucketId) {
+        try {
+            String bId = bucketId != null ? bucketId : MAIN_STORAGE_BUCKET_ID;
+            URL url = new URL(BASE_URL + "/storage/buckets/" + bId + "/files");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+            conn.setRequestProperty("X-Appwrite-Key", API_KEY);
+            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=boundary");
+
+            OutputStream os = conn.getOutputStream();
+            os.write(fileData); // (مبسط لغرض العرض)
+            os.close();
+
+            if (conn.getResponseCode() == 201) return new OperationResult&lt;&gt;(true, "تم الرفع");
+        } catch (Exception e) { return new OperationResult&lt;&gt;(false, e.getMessage()); }
+        return new OperationResult&lt;&gt;(false, "فشل الرفع");
+    }
+
+    // دوال مساعدة إضافية (التحويل، استخراج القيم، قراءة الأخطاء)...
+    private String readResponse(InputStream is) throws IOException {
+        BufferedReader r = new BufferedReader(new InputStreamReader(is));
+        StringBuilder res = new StringBuilder();
+        String line;
+        while ((line = r.readLine()) != null) res.append(line);
+        return res.toString();
+    }
+}
+        </pre>
+    </div>
+</body>
+</html>

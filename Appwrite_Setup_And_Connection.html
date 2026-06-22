@@ -1,0 +1,78 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; padding: 40px; background-color: #f8f9fa; }
+    .header { text-align: center; color: #008B8B; border-bottom: 3px solid #008B8B; padding-bottom: 20px; margin-bottom: 40px; }
+    .section { background: white; border: 1px solid #dee2e6; padding: 30px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    h2 { color: #006666; border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; direction: rtl; text-align: right; margin-top: 0; }
+    .code-block { direction: ltr; text-align: left; background: #282c34; color: #abb2bf; padding: 20px; border-radius: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 11pt; white-space: pre-wrap; border-left: 6px solid #008B8B; }
+    .description { direction: rtl; text-align: right; margin-bottom: 15px; font-weight: 500; color: #555; }
+</style>
+</head>
+<body>
+    <div class='header'>
+        <h1>دليل برمجة Appwrite (إعداد واتصال)</h1>
+        <p>مشروع DragApp - منبه الأدوية</p>
+    </div>
+
+    <div class='section'>
+        <h2>أولاً: كود إعداد Appwrite (Setup)</h2>
+        <div class='description'>هذا الكود مخصص لتعريف الثوابت الأساسية التي تربط التطبيق بمشروعك السحابي:</div>
+        <div class='code-block'>
+// 1. تعريف الروابط والمعرفات الأساسية
+private static final String BASE_URL = "https://fra.cloud.appwrite.io/v1";
+private static final String PROJECT_ID = "69073626002d86ce2ad8";
+
+// 2. مفتاح الـ API للوصول لكامل الصلاحيات
+private static final String API_KEY = "standard_afbf957817fce6194f9c21fdd57f6d4553597bcd9152dcd3adf781432075f17dfb249fabff2572eaa5cb36b75ada168f43e564947451f50b66b91033fd7354514aadd6d0ff2d13df8b1d0db076815a896f683100571077a0f8f1fda543ed2fe8cf4d47f668fe4e320474ab0c4c829d3b2e8d3e0e7951304460d544ce162908cc";
+
+// 3. تهيئة الكائن داخل المشغل (Constructor)
+public DALAppWriteConnection(Context context) {
+    this.context = context;
+    this.gson = new Gson(); // محول البيانات لصيغة JSON
+}
+        </div>
+    </div>
+
+    <div class='section'>
+        <h2>ثانياً: كود اتصال Appwrite (Connection Logic)</h2>
+        <div class='description'>هذا الكود هو "المحرك" الذي يقوم بعملية التواصل الفعلية عبر الإنترنت لإرسال الطلبات للسيرفر:</div>
+        <div class='code-block'>
+public boolean makeAppwriteConnection(String path, String method, String jsonData) {
+    try {
+        // 1. بناء رابط الاتصال (Endpoint)
+        URL url = new URL(BASE_URL + path);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        // 2. ضبط نوع العملية (GET للجلب أو POST للحفظ)
+        connection.setRequestMethod(method);
+
+        // 3. إضافة رؤوس الاتصال والأمان المطلوبة من Appwrite
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+        connection.setRequestProperty("X-Appwrite-Key", API_KEY);
+
+        // 4. تفعيل مخرج البيانات لإرسال الـ JSON
+        if (jsonData != null) {
+            connection.setDoOutput(true);
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(jsonData.getBytes("utf-8"));
+            }
+        }
+
+        // 5. استقبال رمز الاستجابة (200 تعني اتصال ناجح)
+        int responseCode = connection.getResponseCode();
+        return (responseCode == 200 || responseCode == 201);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+        </div>
+    </div>
+
+</body>
+</html>

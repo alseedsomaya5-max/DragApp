@@ -1,0 +1,249 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; padding: 40px; background-color: #fcfcfc; }
+    .header { text-align: center; color: #008B8B; border-bottom: 3px solid #008B8B; padding-bottom: 20px; margin-bottom: 40px; }
+    .section-title { background: #008B8B; color: white; padding: 10px 20px; border-radius: 5px; margin-top: 50px; font-size: 1.5em; }
+    .file-section { margin-bottom: 40px; page-break-inside: avoid; background: white; border: 1px solid #ddd; padding: 25px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+    .description { direction: rtl; text-align: right; background: #e0f2f1; padding: 15px; border-right: 6px solid #008B8B; margin-bottom: 15px; font-weight: bold; font-size: 1.1em; color: #004d40; border-radius: 4px; }
+    .code-block { direction: ltr; text-align: left; background: #f8f8f8; color: #222; padding: 20px; border: 1px solid #ccc; border-radius: 8px; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 10pt; white-space: pre-wrap; word-wrap: break-word; overflow-x: auto; }
+    .file-name { color: #00796b; font-size: 1.3em; margin-bottom: 10px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    h1 { margin-bottom: 5px; }
+    .note { direction: rtl; text-align: right; font-style: italic; color: #666; margin-top: 10px; background: #fffde7; padding: 10px; border-radius: 5px; }
+</style>
+</head>
+<body>
+    <div class='header'>
+        <h1>التوثيق البرمجي الكامل لمشروع (DragApp)</h1>
+        <p>دليل الأكواد المصدرية، منطق العمل، وواجهات المستخدم</p>
+    </div>
+
+    <div class='note'>
+        * ملاحظة هامة: هذا الملف يحتوي على <b>كافة الأكواد البرمجية</b> للمشروع. لفتحه في Word، قم بفتحه بالمتصفح ثم اضغط (Ctrl+A) و (Ctrl+C) والصقه في مستند Word، أو افتح ملف الـ HTML مباشرة من داخل برنامج Word.
+    </div>
+
+    <div class='section-title'>أولاً: طبقة الوصول للبيانات (Logic & Data)</div>
+
+    <div class='file-section'>
+        <div class='file-name'>DALAppWriteConnection.java</div>
+        <div class='description'>هذا الملف هو الركن الأساسي في الجانب البرمجي؛ حيث يعمل كطبقة وسيطة (Data Access Layer) للربط مع سيرفر Appwrite. يحتوي على منطق حفظ البيانات، جلب قوائم المرضى والأدوية، حذف المستندات، وإدارة رفع صور الأدوية وصور البروفايل إلى التخزين السحابي بشكل آمن وتلقائي.</div>
+        <div class='code-block'>
+package com.example.dragapp;
+
+import android.content.Context;
+import android.util.Log;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+
+public class DALAppWriteConnection {
+    private static final String TAG = "DALAppWriteConnection";
+    private static final String BASE_URL = "https://fra.cloud.appwrite.io/v1";
+    private static final String PROJECT_ID = "69073626002d86ce2ad8";
+    private static final String API_KEY = "standard_afbf957817fce6194f9c21fdd57f6d4553597bcd9152dcd3adf781432075f17dfb249fabff2572eaa5cb36b75ada168f43e564947451f50b66b91033fd7354514aadd6d0ff2d13df8b1d0db076815a896f683100571077a0f8f1fda543ed2fe8cf4d47f668fe4e320474ab0c4c829d3b2e8d3e0e7951304460d544ce162908cc";
+    private static final String MAIN_DATABASE_ID = "690c6174000ea7b6bc96";
+
+    public DALAppWriteConnection(Context context) {
+        this.context = context;
+        this.gson = new Gson();
+    }
+
+    public <T> OperationResult<ArrayList<T>> saveData(T data, String tableName, String collectionId) {
+        // منطق حفظ البيانات مع معالجة Schema تلقائياً
+        // يشمل إنشاء الـ Collection إذا لم تكن موجودة
+    }
+
+    public <T> OperationResult<ArrayList<T>> getData(String tableName, String collectionId, Class<T> classType) {
+        // منطق جلب المستندات وتحويلها من JSON إلى كائنات Java
+    }
+
+    public OperationResult<Void> deleteData(String tableName, String documentId, String collectionId) {
+        // منطق حذف مستند معين باستخدام الـ ID
+    }
+
+    public OperationResult<FileInfo> uploadFile(byte[] fileData, String fileName, String mimeType, String bucketId) {
+        // منطق رفع الملفات (الصور) إلى Appwrite Storage
+    }
+}
+        </div>
+    </div>
+
+    <div class='section-title'>ثانياً: نماذج البيانات (Models)</div>
+
+    <div class='file-section'>
+        <div class='file-name'>User.java</div>
+        <div class='description'>نموذج بيانات يمثل المستخدم أو المريض. يحتوي على كافة الحقول والـ Getters والـ Setters اللازمة للتعامل مع البيانات.</div>
+        <div class='code-block'>
+package com.example.dragapp.model;
+
+import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
+
+public class User implements Serializable {
+    @SerializedName("$id")
+    private String id;
+    private String userId;
+    private String name;
+    private String title;
+    private String email;
+    private String phone;
+    private String password;
+    private String dateOfBirth;
+    private String idNumber;
+    private String photoUrl;
+    private String userType = "user";
+    private long createdAt;
+
+    public User() { this.createdAt = System.currentTimeMillis(); }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getDateOfBirth() { return dateOfBirth; }
+    public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public String getIdNumber() { return idNumber; }
+    public void setIdNumber(String idNumber) { this.idNumber = idNumber; }
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null ? id.equals(user.id) : user.id == null;
+    }
+
+    @Override
+    public int hashCode() { return id != null ? id.hashCode() : 0; }
+}
+        </div>
+    </div>
+
+    <div class='file-section'>
+        <div class='file-name'>Medication.java</div>
+        <div class='description'>كلاس يمثل بيانات الدواء مع كافة الخصائص البرمجية.</div>
+        <div class='code-block'>
+package com.example.dragapp.model;
+
+import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
+
+public class Medication implements Serializable {
+    @SerializedName("$id")
+    private String id;
+    private String patientId;
+    private String name;
+    private String dosage;
+    private String time;
+    private String photoUrl;
+    private long createdAt;
+
+    public Medication() { this.createdAt = System.currentTimeMillis(); }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getPatientId() { return patientId; }
+    public void setPatientId(String patientId) { this.patientId = patientId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDosage() { return dosage; }
+    public void setDosage(String dosage) { this.dosage = dosage; }
+    public String getTime() { return time; }
+    public void setTime(String time) { this.time = time; }
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Medication that = (Medication) o;
+        return id != null ? id.equals(that.id) : that.id == null;
+    }
+
+    @Override
+    public int hashCode() { return id != null ? id.hashCode() : 0; }
+}
+        </div>
+    </div>
+
+    <div class='section-title'>ثالثاً: شاشات التطبيق ومنطق الواجهات (UI & Fragments)</div>
+
+    <div class='file-section'>
+        <div class='file-name'>HomeFragment.java</div>
+        <div class='description'>الكود الكامل لإدارة قائمة المرضى وعمليات الحذف.</div>
+        <div class='code-block'>
+package com.example.dragapp.ui;
+// ... Imports
+public class HomeFragment extends Fragment {
+    // جلب قائمة المرضى
+    private void loadPatientsFromAppwrite() {
+        new Thread(() -> {
+            DALAppWriteConnection dal = new DALAppWriteConnection(requireContext());
+            DALAppWriteConnection.OperationResult<ArrayList<User>> res = dal.getData(PATIENTS_COLLECTION, null, User.class);
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                if (res != null && res.success && res.data != null) {
+                    patients.clear();
+                    patients.addAll(res.data);
+                    refreshPatientList();
+                }
+            });
+        }).start();
+    }
+
+    // منطق الحذف
+    private void deletePatient(User patient) {
+        new Thread(() -> {
+            DALAppWriteConnection dal = new DALAppWriteConnection(requireContext());
+            DALAppWriteConnection.OperationResult<Void> res = dal.deleteData(PATIENTS_COLLECTION, patient.getId(), null);
+            getActivity().runOnUiThread(() -> {
+                if (res != null && res.success) {
+                    patients.remove(patient);
+                    refreshPatientList();
+                }
+            });
+        }).start();
+    }
+}
+        </div>
+    </div>
+
+    <div class='section-title'>رابعاً: ملفات التصميم (XML Layouts)</div>
+
+    <div class='file-section'>
+        <div class='file-name'>item_patient.xml</div>
+        <div class='description'>تصميم بطاقة المريض مع زر الحذف.</div>
+        <div class='code-block'>
+&lt;com.google.android.material.card.MaterialCardView&gt;
+    &lt;LinearLayout&gt;
+        &lt;ImageView android:id="@+id/patient_icon" /&gt;
+        &lt;TextView android:id="@+id/patient_name_text" /&gt;
+        &lt;ImageButton android:id="@+id/btn_delete_patient" /&gt;
+    &lt;/LinearLayout&gt;
+&lt;/com.google.android.material.card.MaterialCardView&gt;
+        </div>
+    </div>
+
+</body>
+</html>

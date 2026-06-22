@@ -6,4 +6,8 @@
         <item name="android:windowBackground">@color/ios_bg</item>
     </style>
     <style name="Theme.DragApp" parent="Base.Theme.DragApp" />
+
+    <style name="ShapeAppearanceOverlay.App.CornerSize10Percent" parent="">
+        <item name="cornerSize">10%</item>
+    </style>
 </resources>

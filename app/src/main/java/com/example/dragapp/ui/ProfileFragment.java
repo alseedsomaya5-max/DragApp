@@ -18,12 +18,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.example.dragapp.R;
 import com.example.dragapp.model.User;
 import com.example.dragapp.DALAppWriteConnection;
@@ -60,9 +65,35 @@ public class ProfileFragment extends Fragment implements LoginFragment.LoginList
     private MaterialButton logoutButton;
     private MaterialButton editProfileButton;
 
+    private final ActivityResultLauncher<Void> cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.TakePicturePreview(),
+            bitmap -> {
+                if (bitmap != null) {
+                    userProfileImage.setImageBitmap(bitmap);
+                    saveUserProfileImage(bitmap);
+                }
+            }
+    );
+
+    private final ActivityResultLauncher<String> galleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    try {
+                        InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        if (bitmap != null) {
+                            userProfileImage.setImageBitmap(bitmap);
+                            saveUserProfileImage(bitmap);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+    );
+
     // Constants for image picker
-    private static final int REQUEST_CAMERA = 1;
-    private static final int REQUEST_GALLERY = 2;
     private static final int PERMISSION_CAMERA = 100;
 
     @Nullable
@@ -293,11 +324,20 @@ public class ProfileFragment extends Fragment implements LoginFragment.LoginList
                 if (res != null && res.success && res.data != null) {
                     for (User user : res.data) {
                         if (userPhone.equals(user.getPhone()) && user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
-                            // Load image from URL or set a placeholder
+                            // Load image from URL using Glide with headers
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(() -> {
-                                    // For now, set a placeholder. In real implementation, use image loading library
-                                    userProfileImage.setImageResource(android.R.drawable.ic_menu_myplaces);
+                                    GlideUrl glideUrl = new GlideUrl(user.getPhotoUrl(), new LazyHeaders.Builder()
+                                            .addHeader("X-Appwrite-Project", DALAppWriteConnection.PROJECT_ID)
+                                            .addHeader("X-Appwrite-Key", DALAppWriteConnection.API_KEY)
+                                            .build());
+
+                                    Glide.with(ProfileFragment.this)
+                                            .load(glideUrl)
+                                            .placeholder(android.R.drawable.ic_menu_myplaces)
+                                            .error(android.R.drawable.ic_menu_myplaces)
+                                            .circleCrop()
+                                            .into(userProfileImage);
                                 });
                             }
                             break;
@@ -338,13 +378,11 @@ public class ProfileFragment extends Fragment implements LoginFragment.LoginList
     }
 
     private void openCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_CAMERA);
+        cameraLauncher.launch(null);
     }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, REQUEST_GALLERY);
+        galleryLauncher.launch("image/*");
     }
 
     private void showChangePasswordDialog() {
@@ -530,34 +568,6 @@ public class ProfileFragment extends Fragment implements LoginFragment.LoginList
                 openCamera();
             } else {
                 Toast.makeText(requireContext(), "يجب السماح بالوصول للكاميرا", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        
-        if (resultCode == getActivity().RESULT_OK && data != null) {
-            if (requestCode == REQUEST_CAMERA) {
-                Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-                if (imageBitmap != null) {
-                    userProfileImage.setImageBitmap(imageBitmap);
-                    saveUserProfileImage(imageBitmap);
-                }
-            } else if (requestCode == REQUEST_GALLERY) {
-                Uri selectedImage = data.getData();
-                if (selectedImage != null) {
-                    try {
-                        InputStream inputStream = requireContext().getContentResolver().openInputStream(selectedImage);
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                        userProfileImage.setImageBitmap(bitmap);
-                        saveUserProfileImage(bitmap);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
     }

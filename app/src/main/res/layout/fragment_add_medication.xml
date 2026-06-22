@@ -52,6 +52,32 @@
                 android:inputType="time" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="صورة الدواء"
+            android:textColor="@color/ios_label"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/medication_photo"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/ios_bg"
+            android:contentDescription="@string/take_photo"
+            android:scaleType="centerInside"
+            android:src="@android:drawable/ic_menu_camera" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_take_photo"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/take_photo" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_medication"
             android:layout_width="match_parent"

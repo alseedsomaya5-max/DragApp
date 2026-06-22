@@ -1,0 +1,94 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #000; line-height: 1.5; background-color: #fff; }
+    h1, h2 { text-align: right; direction: rtl; font-size: 1.4em; margin-bottom: 20px; }
+    .intro-text { text-align: right; direction: rtl; margin-bottom: 30px; font-size: 1.1em; }
+
+    .structure-box { background-color: #f5f5f5; padding: 30px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 1.1em; margin-bottom: 40px; text-align: right; direction: ltr; }
+    .structure-line { margin-bottom: 5px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; direction: rtl; }
+    th, td { border: 1px solid #000; padding: 10px; text-align: right; }
+    th { background-color: #f2f2f2; font-weight: bold; }
+    .file-name-cell { font-family: 'Consolas', monospace; direction: ltr; text-align: left; }
+</style>
+</head>
+<body>
+
+    <h2>بنية المشروع والملفات المهمة</h2>
+
+    <div class='intro-text'>
+        بنية التطبيق تعتمد على Activity رئيسية وعدة Fragments.
+    </div>
+
+    <div class='structure-box'>
+        <div style='display: inline-block; text-align: left;'>
+            MainActivity<br>
+            ├── LoginFragment<br>
+            ├── HomeFragment<br>
+            ├── RemindersFragment<br>
+            ├── ProfileFragment<br>
+            ├── AddPatientFragment<br>
+            ├── AddMedicationFragment<br>
+            └── MoreFragment
+        </div>
+    </div>
+
+    <h2>الملفات المهمة:</h2>
+
+    <table>
+        <tr>
+            <th>الملف</th>
+            <th>الوظيفة</th>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>MainActivity.java</td>
+            <td>إدارة التنقل بين كافة الشاشات والتحكم في الهيدر العلوي.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>LoginFragment.java</td>
+            <td>تسجيل دخول المستخدم وتأمين بيانات المريض.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>HomeFragment.java</td>
+            <td>الصفحة الرئيسية لإدارة قائمة الأشخاص الذين يتلقون الدواء.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>RemindersFragment.java</td>
+            <td>عرض شامل لكافة منبهات الأدوية المجدولة لجميع المرضى.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>ProfileFragment.java</td>
+            <td>إدارة الملف الشخصي، الصورة، وتعديل بيانات الحساب.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>AddPatientFragment.java</td>
+            <td>إضافة مريض جديد مع منقي تاريخ الميلاد (DatePicker).</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>AddMedicationFragment.java</td>
+            <td>إضافة دواء جديد مع ميزة التصوير المباشر وتحديد الموعد.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>DALAppWriteConnection.java</td>
+            <td>الطبقة المسؤولة عن الاتصال بقاعدة البيانات السحابية Appwrite.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>User.java</td>
+            <td>كلاس نموذج بيانات المستخدم والمريض.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>Medication.java</td>
+            <td>كلاس نموذج بيانات الأدوية والمنبهات.</td>
+        </tr>
+        <tr>
+            <td class='file-name-cell'>strings.xml</td>
+            <td>ملف الموارد النصية لكافة لغات التطبيق (العربية).</td>
+        </tr>
+    </table>
+
+</body>
+</html>

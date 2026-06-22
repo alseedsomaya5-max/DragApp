@@ -1,11 +1,14 @@
 package com.example.dragapp.model;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class User implements Serializable {
+    @SerializedName("$id")
     private String id;
     private String userId; // Required by Appwrite schema
     private String name;
+    private String title; // Added for patients collection requirement
     private String email;
     private String phone;
     private String password;
@@ -60,6 +63,14 @@ public class User implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getEmail() {
@@ -134,6 +145,19 @@ public class User implements Serializable {
 
     public void setFullName(String fullName) {
         this.name = fullName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null ? id.equals(user.id) : user.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 
     @Override

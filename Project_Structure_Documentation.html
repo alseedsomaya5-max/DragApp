@@ -1,0 +1,74 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; padding: 40px; background-color: #f0f7f7; }
+    .header { text-align: center; color: #008B8B; border-bottom: 3px solid #008B8B; padding-bottom: 20px; margin-bottom: 40px; }
+    .section { background: white; border: 1px solid #ddd; padding: 30px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h2 { color: #006666; border-bottom: 2px solid #eee; padding-bottom: 10px; direction: rtl; text-align: right; }
+    .tree { direction: ltr; text-align: left; background: #2d2d2d; color: #f8f8f2; padding: 25px; border-radius: 10px; font-family: 'Consolas', monospace; font-size: 11pt; line-height: 1.4; overflow-x: auto; }
+    .description-list { direction: rtl; text-align: right; list-style-type: none; padding: 0; }
+    .description-list li { margin-bottom: 15px; padding-right: 20px; border-right: 4px solid #008B8B; }
+    .description-list b { color: #008B8B; font-size: 1.1em; }
+    .tech-badge { display: inline-block; background: #008B8B; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; margin: 5px; }
+</style>
+</head>
+<body>
+    <div class='header'>
+        <h1>بنية وهيكلية مشروع (DragApp)</h1>
+        <p>التنظيم المجمّدي والتقني لتطبيق منبه الأدوية</p>
+    </div>
+
+    <div class='section'>
+        <h2>1. الهيكل الشجري للمجلدات (Project Tree)</h2>
+        <div class='tree'>
+DragApp (الرئيسي)
+├── app (وحدة التطبيق)
+│   ├── src/main
+│   │   ├── java/com/example/dragapp
+│   │   │   ├── DALAppWriteConnection.java (طبقة البيانات)
+│   │   │   ├── MainActivity.java (النشاط الرئيسي)
+│   │   │   ├── model/ (النماذج)
+│   │   │   │   ├── User.java
+│   │   │   │   └── Medication.java
+│   │   │   └── ui/ (واجهات التحكم)
+│   │   │       ├── HomeFragment.java
+│   │   │       ├── RemindersFragment.java
+│   │   │       ├── ProfileFragment.java
+│   │   │       ├── AddPatientFragment.java
+│   │   │       └── AddMedicationFragment.java
+│   │   ├── res/ (الموارد)
+│   │   │   ├── layout/ (تصاميم XML)
+│   │   │   ├── values/ (نصوص وألوان)
+│   │   │   └── drawable/ (أيقونات وصور)
+│   │   └── AndroidManifest.xml (الأذونات)
+└── gradle/ (إعدادات البناء والمكتبات)
+        </div>
+    </div>
+
+    <div class='section'>
+        <h2>2. شرح المكونات الوظيفية</h2>
+        <ul class='description-list'>
+            <li><b>حزمة النماذج (Model Package):</b> تحتوي على كلاسات تمثل جداول قاعدة البيانات، وظيفتها تحويل البيانات القادمة من السيرفر إلى كائنات (Objects) يسهل التعامل معها داخل التطبيق.</li>
+            <li><b>حزمة الواجهات (UI Package):</b> تحتوي على جميع الـ Fragments المسؤولة عن شكل وتفاعل الصفحات، مما يوفر سرعة في التنقل واستهلاكاً أقل لذاكرة الهاتف.</li>
+            <li><b>طبقة الوصول للبيانات (DAL):</b> هي صلة الوصل الوحيدة بالسيرفر؛ حيث يتم فيها تجميع كافة أوامر الاتصال بـ Appwrite لضمان أمان وتنظيم العمليات البرمجية.</li>
+            <li><b>الموارد (Resources):</b> تم فصل التصميم (XML) والألوان والنصوص تماماً عن الكود البرمجي لسهولة التعديل والتطوير المستقبلي.</li>
+        </ul>
+    </div>
+
+    <div class='section'>
+        <h2>3. التقنيات والمكتبات المستخدمة</h2>
+        <div style='text-align: center;'>
+            <span class='tech-badge'>Android Studio</span>
+            <span class='tech-badge'>Appwrite Cloud</span>
+            <span class='tech-badge'>Java Language</span>
+            <span class='tech-badge'>Glide Library (Images)</span>
+            <span class='tech-badge'>Gson (JSON Mapping)</span>
+            <span class='tech-badge'>Material Design 3</span>
+            <span class='tech-badge'>HttpURLConnection</span>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; padding: 40px; background-color: #fcfcfc; }
+    .header { text-align: center; color: #008B8B; border-bottom: 3px solid #008B8B; padding-bottom: 20px; margin-bottom: 40px; }
+    .section-title { background: #008B8B; color: white; padding: 10px 20px; border-radius: 5px; margin-top: 40px; font-size: 1.4em; direction: rtl; text-align: right; }
+    .file-box { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px; margin-top: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .file-name { color: #006666; font-weight: bold; font-size: 1.2em; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+    .file-desc { direction: rtl; text-align: right; color: #444; font-size: 1em; }
+    .folder-path { color: #888; font-family: monospace; font-size: 0.9em; margin-bottom: 5px; }
+    .note { direction: rtl; text-align: right; font-style: italic; color: #666; margin-bottom: 20px; background: #e0f2f1; padding: 10px; border-radius: 5px; }
+</style>
+</head>
+<body>
+    <div class='header'>
+        <h1>بنية مشروع DragApp وقائمة الملفات الرئيسية</h1>
+        <p>التوثيق الكامل لمحتويات وهيكلية تطبيق منبه الأدوية</p>
+    </div>
+
+    <div class='note'>
+        * هذا الملف يحتوي على وصف شامل لبنية المجلدات وقائمة مفصلة بجميع الملفات الهامة في التطبيق، مرتبة بشكل متسلسل لسهولة الفهم والتوثيق.
+    </div>
+
+    <div class='section-title'>الجزء الأول: بنية المجلدات (Project Organization)</div>
+
+    <div class='file-box'>
+        <div class='file-name'>مجلد البرمجة (Java Sources)</div>
+        <div class='file-desc'>يحتوي على كافة الأكواد المنطقية والبرمجية، مقسمة إلى حزم (Packages) لسهولة الإدارة: الموديلات (Models)، واجهات المستخدم (UI)، وطبقة البيانات (DAL).</div>
+    </div>
+
+    <div class='file-box'>
+        <div class='file-name'>مجلد الواجهات (Resources - Layouts)</div>
+        <div class='file-desc'>يحتوي على ملفات XML التي تحدد شكل التطبيق، الأزرار، الحقول، وتوزيع العناصر في كل شاشة.</div>
+    </div>
+
+    <div class='file-box'>
+        <div class='file-name'>مجلد القيم والثوابت (Values)</div>
+        <div class='file-desc'>يحتوي على الألوان، النصوص المترجمة بالعربي، والأنماط (Themes) الموحدة للتطبيق.</div>
+    </div>
+
+    <div class='section-title'>الجزء الثاني: قائمة الملفات المهمة وشرحها</div>
+
+    <!-- 1 -->
+    <div class='file-box'>
+        <div class='folder-path'>java/com/example/dragapp/</div>
+        <div class='file-name'>DALAppWriteConnection.java</div>
+        <div class='file-desc'>الملف الأهم تقنياً؛ هو المسؤول عن ربط التطبيق بقاعدة البيانات السحابية (Appwrite)، ويتولى مهام الحفظ، الجلب، الحذف، ورفع الصور.</div>
+    </div>
+
+    <!-- 2 -->
+    <div class='file-box'>
+        <div class='folder-path'>java/com/example/dragapp/</div>
+        <div class='file-name'>MainActivity.java</div>
+        <div class='file-desc'>العمود الفقري للتنقل؛ يدير حركة المستخدم بين الشاشات ويقوم بتحديث العنوان العلوي (Header) والشريط السفلي حسب كل صفحة.</div>
+    </div>
+
+    <!-- 3 -->
+    <div class='file-box'>
+        <div class='folder-path'>java/com/example/dragapp/model/</div>
+        <div class='file-name'>User.java</div>
+        <div class='file-desc'>يمثل بنية بيانات المريض والمستخدم؛ يحتوي على حقول الاسم، الهوية، تاريخ الميلاد، ورقم الهاتف، مع كود الربط الصحيح بالسيرفر.</div>
+    </div>
+
+    <!-- 4 -->
+    <div class='file-box'>
+        <div class='folder-path'>java/com/example/dragapp/model/</div>
+        <div class='file-name'>Medication.java</div>
+        <div class='file-desc'>يمثل بنية بيانات الدواء؛ يخزن اسم العلاج، الجرعة المطلوبة، وقت التنبيه، ورابط صورة الدواء الملتقطة.</div>
+    </div>
+
+    <!-- 5 -->
+    <div class='file-box'>
+        <div class='folder-path'>java/com/example/dragapp/ui/</div>
+        <div class='file-name'>HomeFragment.java</div>
+        <div class='file-desc'>الشاشة الرئيسية "الذين يتلقون الدواء"؛ تعرض قائمة المرضى وتسمح بحذفهم وتحديث البيانات فورياً من السيرفر.</div>
+    </div>
+
+    <!-- 6 -->
+    <div class='file-box'>
+        <div class='folder-path'>java/com/example/dragapp/ui/</div>
+        <div class='file-name'>AddMedicationFragment.java</div>
+        <div class='file-desc'>شاشة إضافة دواء؛ تحتوي على كود تشغيل الكاميرا لالتقاط صورة الدواء ورفعه، مع اختيار الموعد بدقة.</div>
+    </div>
+
+    <!-- 7 -->
+    <div class='file-box'>
+        <div class='folder-path'>java/com/example/dragapp/ui/</div>
+        <div class='file-name'>RemindersFragment.java</div>
+        <div class='file-desc'>شاشة المنبهات الشاملة؛ تجمع كل مواعيد المرضى وتعرضها بشكل مرتب مع استخدام مكتبة Glide لإظهار الصور.</div>
+    </div>
+
+    <!-- 8 -->
+    <div class='file-box'>
+        <div class='folder-path'>res/layout/</div>
+        <div class='file-name'>item_patient.xml</div>
+        <div class='file-desc'>ملف تصميم "بطاقة المريض"؛ يحدد شكل ظهور المريض في القائمة مع زر الحذف والأيقونات التوضيحية.</div>
+    </div>
+
+    <!-- 9 -->
+    <div class='file-box'>
+        <div class='folder-path'>res/values/</div>
+        <div class='file-name'>strings.xml</div>
+        <div class='file-desc'>مخزن النصوص؛ يحتوي على كافة الكلمات العربية المستخدمة، مما يسهل تعديل مسميات الأزرار والعناوين من مكان واحد.</div>
+    </div>
+
+    <!-- 10 -->
+    <div class='file-box'>
+        <div class='folder-path'>app/</div>
+        <div class='file-name'>AndroidManifest.xml</div>
+        <div class='file-desc'>ملف التعريف الرسمي؛ يحدد الصلاحيات التي يحتاجها التطبيق مثل (الإنترنت، الكاميرا، التنبيهات) وهيكلية الأنشطة.</div>
+    </div>
+
+</body>
+</html>

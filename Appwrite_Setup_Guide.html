@@ -1,0 +1,102 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; padding: 40px; background-color: #f4f7f6; }
+    .header { text-align: center; color: #008B8B; border-bottom: 3px solid #008B8B; padding-bottom: 20px; margin-bottom: 40px; }
+    .section { background: white; border: 1px solid #ddd; padding: 30px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { color: #006666; border-bottom: 2px solid #eee; padding-bottom: 10px; direction: rtl; text-align: right; }
+    .description { direction: rtl; text-align: right; margin-bottom: 20px; font-size: 1.1em; color: #444; }
+    .code-block { direction: ltr; text-align: left; background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 10.5pt; white-space: pre-wrap; overflow-x: auto; border-left: 5px solid #008B8B; }
+    .config-table { width: 100%; border-collapse: collapse; margin-top: 15px; direction: rtl; }
+    .config-table th, .config-table td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+    .config-table th { background-color: #008B8B; color: white; }
+    .highlight { color: #d63384; font-weight: bold; font-family: monospace; }
+</style>
+</head>
+<body>
+    <div class='header'>
+        <h1>دليل إعداد وإعدادات Appwrite لمشروع DragApp</h1>
+        <p>القيم البرمجية وهيكلة قاعدة البيانات السحابية</p>
+    </div>
+
+    <div class='section'>
+        <h2>1. قيم الاتصال البرمجية (Connection Constants)</h2>
+        <div class='description'>هذه القيم موجودة في ملف <span class='highlight'>DALAppWriteConnection.java</span> وهي المسؤولة عن توجيه التطبيق للسيرفر الصحيح والمشروع الخاص بك.</div>
+        <div class='code-block'>
+private static final String BASE_URL = "https://fra.cloud.appwrite.io/v1";
+private static final String PROJECT_ID = "69073626002d86ce2ad8";
+private static final String API_KEY = "standard_afbf957817fce6194f9c21fdd57f6d4553597bcd9152dcd3adf781432075f17dfb249fabff2572eaa5cb36b75ada168f43e564947451f50b66b91033fd7354514aadd6d0ff2d13df8b1d0db076815a896f683100571077a0f8f1fda543ed2fe8cf4d47f668fe4e320474ab0c4c829d3b2e8d3e0e7951304460d544ce162908cc";
+private static final String MAIN_DATABASE_ID = "690c6174000ea7b6bc96";
+private static final String MAIN_STORAGE_BUCKET_ID = "690c619f003dcfb4358a";
+        </div>
+    </div>
+
+    <div class='section'>
+        <h2>2. هيكلة الجداول (Collections Setup)</h2>
+        <div class='description'>يجب إنشاء المجموعات (Collections) التالية داخل قاعدة البيانات في Appwrite Console مع إضافة الحقول (Attributes) المذكورة:</div>
+
+        <h3>أ. مجموعة المرضى (patients)</h3>
+        <table class='config-table'>
+            <tr><th>الحقل (Attribute)</th><th>النوع (Type)</th><th>الوصف</th></tr>
+            <tr><td>name</td><td>String</td><td>اسم المريض الكامل</td></tr>
+            <tr><td>title</td><td>String</td><td>عنوان المريض (يستخدم للبحث والمطابقة)</td></tr>
+            <tr><td>dateOfBirth</td><td>String</td><td>تاريخ ميلاد المريض</td></tr>
+            <tr><td>phone</td><td>String</td><td>رقم هاتف المريض للتواصل</td></tr>
+            <tr><td>userId</td><td>String</td><td>المعرف الفريد للمريض</td></tr>
+        </table>
+
+        <h3>ب. مجموعة الأدوية (medications)</h3>
+        <table class='config-table'>
+            <tr><th>الحقل (Attribute)</th><th>النوع (Type)</th><th>الوصف</th></tr>
+            <tr><td>name</td><td>String</td><td>اسم الدواء</td></tr>
+            <tr><td>dosage</td><td>String</td><td>الجرعة (مثلاً: حبة واحدة)</td></tr>
+            <tr><td>time</td><td>String</td><td>وقت التنبيه (مثلاً: 08:00)</td></tr>
+            <tr><td>photoUrl</td><td>String (URL)</td><td>رابط صورة الدواء المخزنة</td></tr>
+            <tr><td>patientId</td><td>String</td><td>معرف المريض التابع له هذا الدواء</td></tr>
+        </table>
+
+        <h3>ج. مجموعة المستخدمين (users)</h3>
+        <table class='config-table'>
+            <tr><th>الحقل (Attribute)</th><th>النوع (Type)</th><th>الوصف</th></tr>
+            <tr><td>name</td><td>String</td><td>اسم صاحب الحساب</td></tr>
+            <tr><td>phone</td><td>String</td><td>رقم الهاتف (يستخدم لتسجيل الدخول)</td></tr>
+            <tr><td>password</td><td>String</td><td>كلمة المرور المشفرة</td></tr>
+            <tr><td>email</td><td>String</td><td>البريد الإلكتروني</td></tr>
+        </table>
+    </div>
+
+    <div class='section'>
+        <h2>3. إعدادات الأمان (Permissions)</h2>
+        <div class='description'>لكل مجموعة (Collection)، يجب الذهاب إلى تبويب **Settings** ثم **Permissions** وإضافة الصلاحيات التالية:</div>
+        <ul style='direction: rtl; text-align: right; color: #004d40; font-weight: bold;'>
+            <li>إضافة الدور: <span class='highlight'>Any</span></li>
+            <li>تفعيل الخيارات: **Create, Read, Update, Delete** (للسماح للتطبيق بإدارة البيانات).</li>
+        </ul>
+    </div>
+
+    <div class='section'>
+        <h2>4. إعداد مخزن الصور (Storage)</h2>
+        <div class='description'>في قسم **Storage**، يجب إنشاء Bucket بالمعرف التالي لرفع صور الأدوية:</div>
+        <div class='code-block' style='text-align: center; font-size: 14pt;'>
+            Bucket ID: 690c619f003dcfb4358a
+        </div>
+        <div class='description' style='margin-top: 10px;'>تأكد من جعل الـ Permissions للـ Bucket هي <span class='highlight'>Any</span> مع تفعيل **Read** و **Write**.</div>
+    </div>
+
+    <div class='section'>
+        <h2>5. الكود البرمجي الرئيسي للاتصال</h2>
+        <div class='description'>هذا الجزء من الكود يقوم ببناء الطلب وإرساله للسيرفر باستخدام <span class='highlight'>HttpURLConnection</span>:</div>
+        <div class='code-block'>
+URL url = new URL(BASE_URL + "/databases/" + MAIN_DATABASE_ID + "/collections/" + coll + "/documents");
+HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+connection.setRequestMethod("POST"); // أو GET بجلب البيانات
+connection.setRequestProperty("X-Appwrite-Project", PROJECT_ID);
+connection.setRequestProperty("X-Appwrite-Key", API_KEY);
+connection.setRequestProperty("Content-Type", "application/json");
+        </div>
+    </div>
+
+</body>
+</html>

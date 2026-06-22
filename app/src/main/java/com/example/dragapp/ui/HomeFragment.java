@@ -93,17 +93,61 @@ public class HomeFragment extends Fragment {
         } else {
             emptyPatients.setVisibility(View.GONE);
             for (User p : patients) {
-                View row = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, patientsContainer, false);
-                TextView text = row.findViewById(android.R.id.text1);
-                text.setText(p.getName() != null ? p.getName() : "");
+                View row = getLayoutInflater().inflate(R.layout.item_patient, patientsContainer, false);
+                TextView text = row.findViewById(R.id.patient_name_text);
+                View btnDelete = row.findViewById(R.id.btn_delete_patient);
+                
+                String displayName = p.getName();
+                if (displayName == null || displayName.isEmpty()) {
+                    displayName = p.getTitle();
+                }
+                if (displayName == null) displayName = "";
+                text.setText(displayName);
+
                 row.setOnClickListener(v -> {
                     if (getActivity() instanceof NavListener) {
                         ((NavListener) getActivity()).openPatientDetail(p);
                     }
                 });
+
+                final String finalName = displayName;
+                btnDelete.setOnClickListener(v -> {
+                    new android.app.AlertDialog.Builder(requireContext())
+                            .setTitle("حذف مريض")
+                            .setMessage("هل أنت متأكد من حذف " + finalName + "؟ سيتم حذف جميع بياناته نهائياً.")
+                            .setPositiveButton("حذف", (dialog, which) -> deletePatient(p))
+                            .setNegativeButton("إلغاء", null)
+                            .show();
+                });
+
                 patientsContainer.addView(row);
             }
         }
+    }
+
+    private void deletePatient(User patient) {
+        if (patient.getId() == null || patient.getId().isEmpty()) {
+            Toast.makeText(requireContext(), "خطأ: معرف المريض غير موجود", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        new Thread(() -> {
+            DALAppWriteConnection dal = new DALAppWriteConnection(requireContext());
+            DALAppWriteConnection.OperationResult<Void> res = dal.deleteData(PATIENTS_COLLECTION, patient.getId(), null);
+
+            if (getActivity() == null) return;
+            getActivity().runOnUiThread(() -> {
+                if (res != null && res.success) {
+                    Toast.makeText(requireContext(), "تم حذف المريض بنجاح", Toast.LENGTH_SHORT).show();
+                    patients.remove(patient);
+                    refreshPatientList();
+                } else {
+                    String msg = (res != null && res.message != null) ? res.message : "فشل غير معروف";
+                    android.util.Log.e("HomeFragment", "Delete failed: " + msg);
+                    Toast.makeText(requireContext(), "فشل الحفظ: " + msg, Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
     }
 
     public void addPatient(User patient) {

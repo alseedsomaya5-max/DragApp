@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.dragapp.alarm.NotificationHelper;
+import com.example.dragapp.model.Medication;
 import com.example.dragapp.model.User;
 import com.example.dragapp.ui.AddMedicationFragment;
 import com.example.dragapp.ui.AddPatientFragment;
@@ -60,7 +61,15 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.NavL
         customHeader.setBackButtonListener(v -> onBackPressed());
 
         bottomNav = findViewById(R.id.bottom_nav);
-        bottomNav.setSelectedItemId(R.id.nav_home);
+        
+        if (savedInstanceState == null) {
+            bottomNav.setSelectedItemId(R.id.nav_home);
+            replaceFragment(new HomeFragment(), false, getString(R.string.page_home_title));
+        } else {
+            // استعادة المعرف الحالي لتجنب إعادة ضبط الواجهة
+            currentNavId = bottomNav.getSelectedItemId();
+        }
+
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == currentNavId) return true;
@@ -157,6 +166,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.NavL
         replaceFragment(AddMedicationFragment.newInstance(patient), true, getString(R.string.add_medication));
     }
 
+    public void openEditMedication(User patient, Medication medication) {
+        replaceFragment(AddMedicationFragment.newInstance(patient, medication), true, "تعديل المنبه");
+    }
+
     @Override
     public void onLoginRequested() {
         replaceFragment(new LoginFragment(), true, "تسجيل الدخول");
@@ -199,24 +212,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.NavL
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 getWindow().setDecorFitsSystemWindows(false);
-                // استخدم post للتأكد من أن الـ Window جاهز
-                getWindow().getDecorView().post(() -> {
-                    try {
-                        WindowInsetsController controller = getWindow().getInsetsController();
-                        if (controller != null) {
-                            controller.hide(WindowInsets.Type.statusBars());
-                            controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-                        }
-                    } catch (Exception e) {
-                        // في حالة الخطأ، استخدم الطريقة القديمة
-                        fallbackToLegacyMode();
-                    }
-                });
+                // إزالة كود الـ post والـ insetsController الذي قد يسبب الانهيار
             } else {
                 fallbackToLegacyMode();
             }
         } catch (Exception e) {
-            // في حالة أي خطأ، استخدم الوضع الافتراضي
             fallbackToLegacyMode();
         }
     }

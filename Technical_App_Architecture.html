@@ -1,0 +1,65 @@
+
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; padding: 40px; background-color: #fcfcfc; }
+    .header { text-align: center; color: #008B8B; border-bottom: 3px solid #008B8B; padding-bottom: 20px; margin-bottom: 40px; }
+    .layer-box { background: white; border: 1px solid #ddd; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; }
+    .layer-name { color: #008B8B; font-weight: bold; font-size: 1.4em; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; direction: rtl; text-align: right; }
+    .layer-desc { direction: rtl; text-align: right; color: #444; font-size: 1.1em; }
+    .layer-items { direction: rtl; text-align: right; margin-top: 15px; color: #666; font-style: italic; }
+    .arrow { text-align: center; font-size: 2em; color: #008B8B; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+    <div class='header'>
+        <h1>البنية التقنية لمشروع منبه الأدوية (DragApp)</h1>
+        <p>هيكلية الطبقات وتدفق البيانات داخل النظام</p>
+    </div>
+
+    <!-- Layer 1 -->
+    <div class='layer-box'>
+        <div class='layer-name'>1. طبقة واجهة المستخدم (User Interface Layer)</div>
+        <div class='layer-desc'>وهي الطبقة العليا التي يتفاعل معها المريض أو الطبيب مباشرة. وظيفتمها عرض قوائم الأدوية، استقبال بيانات المرضى، والتقاط صور الأدوية.</div>
+        <div class='layer-items'>المكونات: HomeFragment, AddMedicationFragment, ProfileFragment, XML Layouts.</div>
+    </div>
+
+    <div class='arrow'>↓</div>
+
+    <!-- Layer 2 -->
+    <div class='layer-box'>
+        <div class='layer-name'>2. طبقة النماذج (Model Layer)</div>
+        <div class='layer-desc'>تعمل كقالب لتنظيم البيانات؛ حيث يتم تحويل المعلومات المدخلة (مثل اسم المريض ووقت الدواء) إلى كائنات برمجية (Java Objects) يسهل نقلها ومعالجتها.</div>
+        <div class='layer-items'>المكونات: User.java, Medication.java.</div>
+    </div>
+
+    <div class='arrow'>↓</div>
+
+    <!-- Layer 3 -->
+    <div class='layer-box'>
+        <div class='layer-name'>3. طبقة الوصول للبيانات والمنطق (Data Access Layer - DAL)</div>
+        <div class='layer-desc'>هي "العقل المدبر" للاتصال؛ حيث تقوم باستلام البيانات من الواجهات وتجهيزها لإرسالها عبر الإنترنت إلى السيرفر، كما تعالج ردود السيرفر وتتأكد من نجاح العمليات.</div>
+        <div class='layer-items'>المكونات: DALAppWriteConnection.java.</div>
+    </div>
+
+    <div class='arrow'>↓</div>
+
+    <!-- Layer 4 -->
+    <div class='layer-box'>
+        <div class='layer-name'>4. طبقة الخدمات السحابية (Cloud Layer - Appwrite)</div>
+        <div class='layer-desc'>الطبقة الخارجية المسؤولة عن تخزين كافة البيانات بشكل دائم. تشمل قاعدة البيانات (للنصوص)، مخزن الملفات (لصور الأدوية)، ونظام إدارة المستخدمين.</div>
+        <div class='layer-items'>المكونات: Appwrite Cloud Server, Database, Storage Buckets.</div>
+    </div>
+
+    <div class='arrow'>↓</div>
+
+    <!-- Layer 5 -->
+    <div class='layer-box'>
+        <div class='layer-name'>5. طبقة التنبيهات والخدمات الخلفية (Services Layer)</div>
+        <div class='layer-desc'>تعمل بشكل مستقل في خلفية الهاتف لضمان رنين المنبه في الوقت المحدد حتى لو كان التطبيق مغلقاً، وتظهر الإشعارات للمستخدم.</div>
+        <div class='layer-items'>المكونات: AlarmReceiver, NotificationHelper, Android AlarmManager.</div>
+    </div>
+
+</body>
+</html>
