@@ -25,6 +25,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.example.dragapp.DALAppWriteConnection;
+import com.example.dragapp.util.AppwriteImageLoader;
 import com.example.dragapp.R;
 import com.example.dragapp.model.Medication;
 import com.example.dragapp.model.User;
@@ -43,6 +44,7 @@ import java.util.Locale;
 
 public class AddMedicationFragment extends Fragment {
 
+    public static final String REQUEST_KEY_MEDICATION_SAVED = "medication_saved";
     private static final String ARG_PATIENT = "patient";
     private static final String ARG_MEDICATION = "medication";
     private static final String MEDICATIONS_COLLECTION = "medications";
@@ -151,9 +153,8 @@ public class AddMedicationFragment extends Fragment {
             btnSave.setText("تعديل المنبه");
             
             if (editMedication.getPhotoUrl() != null && !editMedication.getPhotoUrl().isEmpty()) {
-                com.bumptech.glide.Glide.with(this)
-                        .load(editMedication.getPhotoUrl())
-                        .into(photoPreview);
+                AppwriteImageLoader.load(requireContext(), photoPreview,
+                        editMedication.getPhotoUrl(), android.R.drawable.ic_menu_camera);
             }
         }
 
@@ -274,7 +275,7 @@ public class AddMedicationFragment extends Fragment {
             } else {
                 med = new Medication(patient.getId(), name, dosage, time);
             }
-            med.setPhotoUrl(photoUrl);
+            med.setPhotoUrl(AppwriteImageLoader.toDownloadUrl(photoUrl));
             
             DALAppWriteConnection.OperationResult<?> res;
             if (editMedication != null) {
@@ -288,6 +289,7 @@ public class AddMedicationFragment extends Fragment {
                 btnSave.setEnabled(true);
                 if (res != null && res.success) {
                     Toast.makeText(requireContext(), editMedication != null ? "تم تعديل المنبه بنجاح" : "تم حفظ المنبه بنجاح", Toast.LENGTH_SHORT).show();
+                    getParentFragmentManager().setFragmentResult(REQUEST_KEY_MEDICATION_SAVED, new Bundle());
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     final String errorDetail = (res != null && res.message != null) ? res.message : "فشل الاتصال بالسيرفر";

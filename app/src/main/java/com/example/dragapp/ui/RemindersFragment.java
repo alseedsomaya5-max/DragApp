@@ -14,9 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
+import com.example.dragapp.util.AppwriteImageLoader;
 import com.example.dragapp.DALAppWriteConnection;
 import com.example.dragapp.MainActivity;
 import com.example.dragapp.R;
@@ -35,7 +33,6 @@ public class RemindersFragment extends Fragment {
     private final List<Medication> medications = new ArrayList<>();
     private MedicationAdapter adapter;
 
-    /** نفس اسم المجموعة المستخدم في AddMedicationFragment */
     private static final String MEDICATIONS_COLLECTION = "medications";
 
     @Nullable
@@ -47,7 +44,7 @@ public class RemindersFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         recyclerView = view.findViewById(R.id.reminders_recycler_view);
         emptyText = view.findViewById(R.id.empty_reminders);
         FloatingActionButton fabAdd = view.findViewById(R.id.fab_add_reminder);
@@ -63,31 +60,45 @@ public class RemindersFragment extends Fragment {
                 showPatientPickerDialog();
             }
         });
-        
+
+        getParentFragmentManager().setFragmentResultListener(
+                AddMedicationFragment.REQUEST_KEY_MEDICATION_SAVED,
+                getViewLifecycleOwner(),
+                (key, bundle) -> loadData()
+        );
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         loadData();
     }
 
     private void loadData() {
+        if (getContext() == null) return;
+
         new Thread(() -> {
             DALAppWriteConnection dal = new DALAppWriteConnection(requireContext());
-            
-            // جلب المرضى
+
             DALAppWriteConnection.OperationResult<ArrayList<User>> patientRes = dal.getData("patients", null, User.class);
             if (patientRes != null && patientRes.success && patientRes.data != null) {
                 patients.clear();
                 patients.addAll(patientRes.data);
             }
 
-            // جلب المنبهات
-            DALAppWriteConnection.OperationResult<ArrayList<Medication>> medRes = dal.getData(MEDICATIONS_COLLECTION, null, Medication.class);
-            
+            DALAppWriteConnection.OperationResult<ArrayList<Medication>> medRes =
+                    dal.getData(MEDICATIONS_COLLECTION, null, Medication.class);
+
             if (getActivity() == null) return;
             getActivity().runOnUiThread(() -> {
+                medications.clear();
                 if (medRes != null && medRes.success && medRes.data != null) {
-                    medications.clear();
                     medications.addAll(medRes.data);
-                    adapter.notifyDataSetChanged();
+                } else if (medRes != null && !medRes.success) {
+                    String msg = medRes.message != null ? medRes.message : "فشل جلب المنبهات";
+                    Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
                 }
+                adapter.notifyDataSetChanged();
                 updateEmptyState();
             });
         }).start();
@@ -158,28 +169,20 @@ public class RemindersFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Medication med = list.get(position);
-            holder.nameText.setText(med.getName());
-            holder.infoText.setText("الجرعة: " + med.getDosage() + " | الوقت: " + med.getTime());
+            holder.nameText.setText(med.getName() != null ? med.getName() : "");
+            String dosage = med.getDosage() != null ? med.getDosage() : "";
+            String time = med.getTime() != null ? med.getTime() : "";
+            holder.infoText.setText("الجرعة: " + dosage + " | الوقت: " + time);
 
+            AppwriteImageLoader.clear(holder.photoView);
             if (med.getPhotoUrl() != null && !med.getPhotoUrl().isEmpty()) {
-                // إرسال مفاتيح الأمان في الهيدر لضمان فتح الصور المحمية
-                GlideUrl glideUrl = new GlideUrl(med.getPhotoUrl(), new LazyHeaders.Builder()
-                        .addHeader("X-Appwrite-Project", DALAppWriteConnection.PROJECT_ID)
-                        .addHeader("X-Appwrite-Key", DALAppWriteConnection.API_KEY)
-                        .build());
-
-                Glide.with(holder.itemView.getContext())
-                        .load(glideUrl)
-                        .placeholder(android.R.drawable.ic_menu_camera)
-                        .error(android.R.drawable.ic_menu_report_image)
-                        .centerCrop()
-                        .into(holder.photoView);
+                AppwriteImageLoader.load(holder.itemView.getContext(), holder.photoView,
+                        med.getPhotoUrl(), android.R.drawable.ic_menu_camera);
             } else {
                 holder.photoView.setImageResource(android.R.drawable.ic_menu_camera);
             }
 
             holder.btnEdit.setOnClickListener(v -> {
-                // العثور على المريض المرتبط بهذا الدواء (اختياري، أو تمرير null إذا كان AddMedicationFragment يدعم ذلك)
                 User patient = null;
                 for (User p : patients) {
                     if (p.getId() != null && p.getId().equals(med.getPatientId())) {

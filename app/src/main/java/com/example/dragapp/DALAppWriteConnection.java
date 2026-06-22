@@ -882,11 +882,8 @@ public class DALAppWriteConnection {
             // التحقق من وجود الجدول
             boolean exists = tableExists(tableName, collectionId);
             Log.d(TAG, "getData: tableExists(" + tableName + ")=" + exists);
-
             if (!exists) {
-                Log.w(TAG, "getData: الجدول غير موجود، إرجاع قائمة فارغة: " + tableName);
-                // إرجاع نجاح مع قائمة فارغة حتى لا تتوقف الواجهة، ويستطيع المستخدم إضافة بيانات
-                return new OperationResult<>(true, "الجدول غير موجود بعد", new ArrayList<>());
+                Log.w(TAG, "getData: tableExists=false, still trying fetch for " + tableName);
             }
 
             String coll = collectionId != null ? collectionId : tableName;
@@ -1482,6 +1479,23 @@ public class DALAppWriteConnection {
     }
     
     /**
+     * تنظيف مستند Appwrite قبل Gson — يزيل الميتاداتا وحقول التاريخ النصية.
+     */
+    private JsonObject sanitizeDocumentForGson(JsonObject documentJson) {
+        JsonObject cleanJson = new JsonObject();
+        for (String key : documentJson.keySet()) {
+            if (key.equals("$id")) {
+                cleanJson.add("$id", documentJson.get("$id"));
+            } else if (!key.startsWith("$")
+                    && !key.equals("createdAt")
+                    && !key.equals("updatedAt")) {
+                cleanJson.add(key, documentJson.get(key));
+            }
+        }
+        return cleanJson;
+    }
+
+    /**
      * تحليل استجابة جلب المستندات وتحويلها لكائنات Java
      * @param responseString استجابة JSON
      * @param classType نوع الكلاس المطلوب
@@ -1500,22 +1514,21 @@ public class DALAppWriteConnection {
                 for (int i = 0; i < documentsArray.size(); i++) {
                     try {
                         JsonObject documentJson = documentsArray.get(i).getAsJsonObject();
-                        
-                        // تحويل المستند إلى كائن Java
-                        T item = gson.fromJson(documentJson, classType);
+                        JsonObject cleanJson = sanitizeDocumentForGson(documentJson);
+                        T item = gson.fromJson(cleanJson, classType);
                         
                         if (item != null) {
                             items.add(item);
                         }
                     } catch (Exception e) {
-                        // خطأ في تحليل مستند
+                        Log.e(TAG, "parseDocumentResponse: failed to parse document", e);
                     }
                 }
             }
             
             return items;
         } catch (Exception e) {
-            // خطأ في تحليل الاستجابة
+            Log.e(TAG, "parseDocumentResponse: failed", e);
             return new ArrayList<>();
         }
     }
@@ -1878,9 +1891,8 @@ public class DALAppWriteConnection {
         fileInfo.uploadDate = new Date();
         
         try {
-            // بناء الرابط الصحيح للملف في Appwrite Frankfurt region
-            // استخدام /preview بدلاً من /download لعرض الصورة بشكل صحيح
-            fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileId + "/preview?project=" + PROJECT_ID;
+            // استخدام /view مع مفتاح API — /preview يعيد 403
+            fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileId + "/view?project=" + PROJECT_ID;
             
             // محاولة استخراج حجم الملف إذا كان متوفراً من الاستجابة
             String sizeString = extractValue(responseString, "sizeOriginal");
@@ -1898,7 +1910,7 @@ public class DALAppWriteConnection {
             
         } catch (Exception e) {
             // في حالة الخطأ، استخدم الرابط الافتراضي
-            fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileId + "/download?project=" + PROJECT_ID;
+            fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileId + "/view?project=" + PROJECT_ID;
         }
         
         return fileInfo;
@@ -1952,7 +1964,7 @@ public class DALAppWriteConnection {
             fileInfo.bucketId = bucketId;
             
             if (fileInfo.fileId != null) {
-                fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileInfo.fileId + "/preview?project=" + PROJECT_ID;
+                fileInfo.fileUrl = BASE_URL + "/storage/buckets/" + bucketId + "/files/" + fileInfo.fileId + "/view?project=" + PROJECT_ID;
                 
                 // استخراج الحجم
                 String sizeString = extractValue(responseString, "sizeOriginal");

@@ -26,9 +26,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
+import com.example.dragapp.util.AppwriteImageLoader;
 import com.example.dragapp.R;
 import com.example.dragapp.model.User;
 import com.example.dragapp.DALAppWriteConnection;
@@ -327,17 +325,8 @@ public class ProfileFragment extends Fragment implements LoginFragment.LoginList
                             // Load image from URL using Glide with headers
                             if (getActivity() != null) {
                                 getActivity().runOnUiThread(() -> {
-                                    GlideUrl glideUrl = new GlideUrl(user.getPhotoUrl(), new LazyHeaders.Builder()
-                                            .addHeader("X-Appwrite-Project", DALAppWriteConnection.PROJECT_ID)
-                                            .addHeader("X-Appwrite-Key", DALAppWriteConnection.API_KEY)
-                                            .build());
-
-                                    Glide.with(ProfileFragment.this)
-                                            .load(glideUrl)
-                                            .placeholder(android.R.drawable.ic_menu_myplaces)
-                                            .error(android.R.drawable.ic_menu_myplaces)
-                                            .circleCrop()
-                                            .into(userProfileImage);
+                                    AppwriteImageLoader.load(requireContext(), userProfileImage,
+                                            user.getPhotoUrl(), android.R.drawable.ic_menu_myplaces);
                                 });
                             }
                             break;
